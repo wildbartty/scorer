@@ -6,8 +6,8 @@
 #include "characters.h"
 
 int main() {
-    setlocale(LC_ALL, "");
-    character_test();
-    return 0;
+  setlocale(LC_ALL, "");
+  character_test();
+  return 0;
 }
 
