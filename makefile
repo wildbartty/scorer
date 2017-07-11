@@ -3,8 +3,8 @@ FILES = characters.o
 MAIN = main.o
 LIBS = `pkg-config --libs --cflags ncurses`
 
-%.o: %.c $(LIBS)
-	$(CC) -g -c -o $< $@ $(LIBS)
+%.o: %.c 
+	$(CC) -g -c -o $@ $< $(LIBS)
 
 make: $(MAIN) $(FILES)
 	$(CC) -g -o scorer $(FILES) $(MAIN) $(LIBS)

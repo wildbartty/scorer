@@ -5,6 +5,7 @@
 
 int character_test()
 {
+  /* Tests that the formating characters print */
     printf("vbar     prints: %lc \n"
 	   "hbar     prints: %lc \n"
 	   "tlcorner prints: %lc \n"
@@ -18,6 +19,7 @@ int character_test()
 	   "midt     prints: %lc\n"
 	   ,
 	   VBAR, HBAR, TLCORNER, TRCORNER
-	   , BLCORNER, BRCORNER);
+	   , BLCORNER, BRCORNER, LEFTT,
+	   RIGHTT,UPT, DOWNT, MIDT);
     return 0;
 }
