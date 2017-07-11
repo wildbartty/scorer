@@ -1,7 +1,7 @@
 CC = gcc
 FILES = characters.o
 MAIN = main.o
-LIBS = `pkg-config --libs --cflags ncurses`
+LIBS = `pkg-config --libs --cflags lua ncurses`
 
 %.o: %.c 
 	$(CC) -g -c -o $@ $< $(LIBS)

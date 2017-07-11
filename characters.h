@@ -1,5 +1,7 @@
 #ifndef SCORER_CHARACTERS
 #define SCORER_CHARACTERS
+
+#ifndef SCORER_CHARACTERS_ASCII
 #define VBAR      0x2502
 #define HBAR      0x2500
 #define TLCORNER  0x250c
@@ -11,6 +13,22 @@
 #define UPT       0x252c
 #define DOWNT     0x2534
 #define MIDT      0x253c
+
+#else
+
+#define VBAR      '|'
+#define HBAR      '-'
+#define TLCORNER  '+'
+#define TRCORNER  '+'
+#define BLCORNER  '+'
+#define BRCORNER  '+'
+#define LEFTT     '+'
+#define RIGHTT    '+'
+#define UPT       '+'
+#define DOWNT     '+'
+#define MIDT      '+'
+
+#endif
 
 int character_test();
 
