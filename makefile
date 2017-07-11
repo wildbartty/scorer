@@ -1,5 +1,5 @@
 CC = gcc
-FILES = characters.o
+FILES = characters.o demo.o printstack.o
 MAIN = main.o
 LIBS = `pkg-config --libs --cflags lua ncurses`
 

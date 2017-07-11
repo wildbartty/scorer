@@ -7,10 +7,13 @@
 #include <lauxlib.h>
 #include <locale.h>
 #include "characters.h"
+#include "printstack.h"
 
 int main() {
   lua_State *lua_state = luaL_newstate();
   lua_pushnil(lua_state);
+  lua_pushnil(lua_state);
+  print_stack(lua_state);
   setlocale(LC_ALL, "");
   character_test();
   lua_close(lua_state);
