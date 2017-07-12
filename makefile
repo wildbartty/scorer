@@ -1,7 +1,7 @@
 CC = gcc
-FILES = characters.o demo.o printstack.o
+FILES = characters.o printstack.o
 MAIN = main.o
-LIBS = `pkg-config --libs --cflags lua ncurses`
+LIBS = `pkg-config --libs --cflags lua52 ncurses`
 
 %.o: %.c 
 	$(CC) -g -c -o $@ $< $(LIBS)
