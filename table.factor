@@ -1,5 +1,5 @@
 USING: io.encodings.utf8 kernel math.matrices
-accessors strings 
+accessors strings io io.files
     ;
 
 IN: scorer
@@ -7,7 +7,8 @@ IN: scorer
 "! : TLCORNER ( -- x ) "
 
 TUPLE: data-table
-    rest
+    dimensions
+    data
     { vbar     read-only
       initial: CHAR: \u002502 }
     { hbar     read-only
@@ -34,7 +35,7 @@ TUPLE: data-table
 
 : <data-table> ( num -- table )
     data-table new
-    swap >>rest ;
+    swap >>dimensions ;
 
 GENERIC: make-bar ( num obj -- str )
 
