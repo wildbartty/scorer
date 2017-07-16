@@ -1,11 +1,11 @@
 USING: io.encodings.utf8 kernel math.matrices
 accessors strings io io.files vectors sequences
-math.parser
+math.parser hashtables namespaces
     ;
 
 IN: scorer
 
-"! : TLCORNER ( -- x ) "
+! : TLCORNER ( -- x ) "
 
 CONSTANT: vbar     CHAR: \u002502 
 CONSTANT: hbar     CHAR: \u002500 
@@ -19,6 +19,11 @@ CONSTANT: up-t     CHAR: \u002538
 CONSTANT: down-t   CHAR: \u00252c 
 CONSTANT: mid-t    CHAR: \u00253c 
 
+SYMBOL: score-table
+
+: reset-score-table ( -- ) score-table [ drop H{ } clone ] change ;
+
+
 TUPLE: data-table
     dimensions
     data
@@ -28,6 +33,6 @@ TUPLE: data-table
     data-table new
     swap >>dimensions ;
 
-GENERIC: make-bar ( num obj -- str )
+GENERIC: make-bar ( num -- str )
 
-M: data-table make-bar ( num obj -- str ) hbar>> <string> ;
+M: data-table make-bar ( num -- str ) hbar <string> ;
