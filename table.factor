@@ -19,11 +19,6 @@ CONSTANT: up-t     CHAR: \u002538
 CONSTANT: down-t   CHAR: \u00252c 
 CONSTANT: mid-t    CHAR: \u00253c 
 
-SYMBOL: score-table
-
-: reset-score-table ( -- ) score-table [ drop H{ } clone ] change ;
-
-
 TUPLE: data-table
     dimensions
     data
