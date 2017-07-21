@@ -1,19 +1,17 @@
-USING: io.encodings.utf8 kernel math.matrices
-accessors strings io io.files vectors sequences
-math.parser json json.reader hashtables
-    namespaces  ;
+USING: accessors hashtables io io.encodings.utf8 io.files json
+json.reader kernel math.matrices math.parser namespaces parser
+sequences strings vectors ;
     
 
 IN: scorer
 
 TUPLE: person
     name
-    score
+    score-arr
+    val-arr
     ;
 
-SYMBOL: score-hash
-
-32 <hashtable> score-hash set
+: init ( -- ) "~/projects/scorer/table.factor" run-file ;
 
 GENERIC: get-name ( obj -- obj )
 
@@ -21,10 +19,12 @@ M: person get-name ( obj -- obj ) "Enter name\n" write flush
     readln >>name ;
 
 : <person> ( -- obj ) person new clone
-    get-name V{ } >>score ;
+    get-name V{ } >>score-arr ;
 
 GENERIC: get-score-in ( obj -- obj )
 
 M: person get-score-in ( obj -- obj )
-    dup score>> "Enter score\n" write flush
+    dup score-arr>> "Enter score\n" write flush
     readln swap push ;
+
+GENERIC: get-score-vals ( obj -- obj )

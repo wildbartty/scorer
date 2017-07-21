@@ -1,6 +1,6 @@
-USING: accessors hashtables io io.encodings.utf8 io.files json.reader
-json.reader kernel math.matrices math.parser namespaces sequences
-strings vectors ;
+USING: accessors assocs hashtables io io.encodings.utf8 io.files
+json.reader json.reader kernel math.matrices math.parser namespaces
+sequences strings vectors hashtables ;
 
 IN: scorer
 
@@ -9,17 +9,20 @@ TUPLE: score-table-class
     file
     ;
 
-GENERIC: reset-score-table ( obj -- obj )
+SYMBOL: score-table
 
-M: score-table-class reset-score-table ( obj -- obj ) 32 <hashtable> >>table ;
 
-GENERIC: load-score-config ( file obj -- obj ) 
 
-M: score-table-class load-score-config ( file obj -- obj )
-    swap >>file dup file>> utf8 file-contents json>
-    >>table ;
+: <score-table> ( -- table ) score-table-class new H{ } clone >>table
+    "" >>file ;
 
-GENERIC: int-score ( val obj -- num )
+: reset-score-table ( -- ) <score-table> score-table set ;
 
-M: score-table-class int-score ( val obj -- num )
-    table>> at ;
+reset-score-table
+
+: load-score-config ( file -- obj' )
+    score-table get swap
+    >>file dup file>> path>json >>table ;
+
+: int-score ( val -- num )
+    "scores" score-table get table>> at at ;
