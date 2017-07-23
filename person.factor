@@ -17,20 +17,16 @@ TUPLE: person
 
 : init ( -- ) "~/projects/scorer/table.factor" run-file ;
 
-GENERIC: get-name ( obj -- obj )
-
-M: person get-name ( obj -- obj ) "Enter name\n" write flush 
-    readln >>name ;
+: get-name ( -- obj ) "Enter name\n" write flush 
+    readln ;
 
 GENERIC: person-at ( name obj -- hash-res )
 
 M: person person-at table>> at ;
 
 : <person> ( -- obj )
-    person new clone
     get-name
-    V{ } >>score-arr
-    score-table get table>> >>table
+    score-table get dup swap "sport" at swap
     "rounds" over person-at >>rounds
     "mode" over person-at >>mode
     "sport" over person-at >>sport

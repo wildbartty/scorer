@@ -27,3 +27,6 @@ reset-score-table
 
 : int-score ( val -- num )
     "scores" score-table get table>> at at ;
+
+M: score-table-class at* ( at obj -- val f )
+    table>> at* ;
