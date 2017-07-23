@@ -5,7 +5,8 @@ sequences strings vectors hashtables ;
 IN: scorer
 
 TUPLE: score-table-class
-    table
+    { table hashtable
+      initial: H{ } }
     file
     ;
 
