@@ -7,8 +7,8 @@ IN: scorer
 
 TUPLE: person
     name
-    sport
     table
+    sport
     mode
     rounds
     { score-arr vector }
@@ -22,14 +22,16 @@ TUPLE: person
 
 GENERIC: person-at ( name obj -- hash-res )
 
-M: person person-at table>> at ;
+M: person at* table>> at* ;
 
 : <person> ( -- obj )
-    get-name
-    score-table get dup swap "sport" at swap
-    "rounds" over person-at >>rounds
-    "mode" over person-at >>mode
-    "sport" over person-at >>sport
+    person new
+    get-name >>name
+    score-table table>> >>table
+    dup table>> "sport" swap at >>sport
+    dup table>> "mode" swap at >>mode
+    dup table>> "rounds" swap at >>rounds
+
     ;
 
 GENERIC: get-score-in ( obj -- obj )
