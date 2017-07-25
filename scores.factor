@@ -22,9 +22,9 @@ CONSTANT: score-table T{ score-table-class
 : reset-score-table ( -- ) score-table H{ } clone >>table
     "" >>file drop ;
 
-: load-score-config ( file -- obj' )
+: load-score-config ( file -- )
     score-table swap
-    >>file dup file>> path>json >>table ;
+    >>file dup file>> path>json >>table drop ;
 
 : int-score ( val -- res )
     "scores" score-table table>> at at ;
