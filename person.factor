@@ -46,6 +46,10 @@ GENERIC: get-score-vals ( obj -- obj )
 M: person get-score-vals ( obj -- obj' )
     dup score-arr>> [ int-score ] map >>val-arr ;
 
+GENERIC: write-score ( obj -- obj )
+
+M: person write-score ( obj -- obj )
+    
 GENERIC: score-round ( obj -- obj' )
 
 M: person score-round ( person -- person' )
