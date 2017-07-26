@@ -5,9 +5,6 @@ math sequences strings vectors ;
 
 IN: scorer
 
-CONSTANT: person-map H{ }
-CONSTANT: curr-date V{ } 
-
 TUPLE: person
     name
     table
@@ -59,14 +56,10 @@ M: person score-round ( person -- person' )
     [ dup dup rounds>> swap current-round>> <= ]
     [ get-score-in dup current-round>> 1 + >>current-round ]
     until
-    get-score-vals
+    dup score-arr>> [ int-score ] map >>val-arr
     ;
-<<<<<<< HEAD
-
-=======
     
 ! : numeric-for ( start limit body: ( ..a -- ..b) -- ..b )
 !   2dup 
 !    ;
     
->>>>>>> d2cc2d381c71621919b7066ac0fc49b86605a13e
