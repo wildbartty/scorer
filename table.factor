@@ -1,7 +1,6 @@
-USING: io.encodings.utf8 kernel math.matrices
-accessors strings io io.files vectors sequences
-math.parser hashtables namespaces
-    ;
+USING: accessors arrays assocs hashtables io io.encodings.utf8
+io.files json json.reader kernel math math.matrices math.parser
+namespaces parser sequences strings vectors ;
 
 IN: scorer
 
@@ -20,14 +19,29 @@ CONSTANT: down-t   CHAR: \u00252c
 CONSTANT: mid-t    CHAR: \u00253c 
 
 TUPLE: data-table
-    dimensions
-    data
+    { dimensions array }
+    { data vector }
+    data-dimensions
     ;
 
-: <data-table> ( num -- table )
+! first dimensions is the col
+! second dimensions is the row
+
+: <data-table> ( num num -- table )
+    2array
     data-table new
     swap >>dimensions ;
 
 GENERIC: make-bar ( num -- str )
 
 M: data-table make-bar ( num -- str ) hbar <string> ;
+
+GENERIC: add-row ( obj -- obj' )
+
+M: data-table add-row ( obj -- obj' )
+    dup dimensions>> dup second 1 + 1 rot set-nth ;
+
+GENERIC: add-col ( obj -- obj' )
+
+M: data-table add-col ( obj -- obj' )
+    dup dimensions>> dup first 1 + 0 rot set-nth ;
