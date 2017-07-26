@@ -19,15 +19,29 @@ TUPLE: score-table-class
 CONSTANT: score-table T{ score-table-class
                          f H{ } f }
 
+! a constant word that is used to store the
+! configs for the scorer
+
 : reset-score-table ( -- ) score-table H{ } clone >>table
+    ! self-descriptive, resets score-table to it's inital
+    ! state
     "" >>file drop ;
 
+
 : load-score-config ( file -- )
+
     score-table swap
     >>file dup file>> path>json >>table drop ;
 
+: reload-score-config ( -- )
+    ! reloads the score-config
+    score-table file>> load-score-config ;
+
+M: score-table-class at* ( at obj -- val f )
+    table>> at* ;
+
 : int-score ( val -- res )
-    "scores" score-table table>> at at ;
+    "scores" score-table at at ;
 
 HELP: int-score
 { $values { "val" object } { "res" object } }
@@ -36,5 +50,3 @@ HELP: int-score
 
 
 
-M: score-table-class at* ( at obj -- val f )
-    table>> at* ;
