@@ -6,6 +6,9 @@ sequences strings vectors ;
 
 IN: scorer
 
+CONSTANT: person-map H{ }
+CONSTANT: curr-date V{ } 
+
 TUPLE: person
     name
     table
@@ -53,6 +56,6 @@ M: person score-round ( person -- person' )
     [ dup dup rounds>> swap current-round>> <= ]
     [ get-score-in dup current-round>> 1 + >>current-round ]
     until
-    dup score-arr>> [ int-score ] map >>val-arr
+    get-score-vals
     ;
-    
+
