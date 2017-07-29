@@ -1,0 +1,11 @@
+* Person-class
+** TODO [#A] File output
+** DONE File format
+** DONE Score-interpretation
+** TODO [#C] Pretty printing
+** TODO [#C] Frontend 
+* General features
+** TODO [#B] Time mode
+** DONE Score mode
+** TODO [#C] Ranking
+** TODO [#C] Edit past rounds
