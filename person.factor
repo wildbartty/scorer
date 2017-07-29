@@ -52,6 +52,7 @@ M: person get-score-vals ( obj -- obj' )
 GENERIC: write-score ( obj -- obj )
 
 M: person write-score ( obj -- obj )
+    dup drop ;
     
 GENERIC: score-round ( obj -- obj' )
 
@@ -61,12 +62,7 @@ M: person score-round ( person -- person' )
     until
     get-score-vals
     ;
-<<<<<<< HEAD
-
-=======
-    
 ! : numeric-for ( start limit body: ( ..a -- ..b) -- ..b )
 !   2dup 
 !    ;
     
->>>>>>> d2cc2d381c71621919b7066ac0fc49b86605a13e
