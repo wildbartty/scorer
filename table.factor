@@ -4,7 +4,7 @@ namespaces parser sequences strings vectors ;
 
 IN: scorer
 
-! : TLCORNER ( -- x ) "
+: prepend ( seq1 seq2 -- seq ) swap append ;
 
 CONSTANT: vbar     CHAR: \u002502 
 CONSTANT: hbar     CHAR: \u002500 
@@ -20,9 +20,11 @@ CONSTANT: mid-t    CHAR: \u00253c
 
 TUPLE: data-table
     { dimensions array }
-    { data vector }
+    { data hashtable }
     data-dimensions
     ;
+
+INSTANCE: data-table assoc
 
 ! first dimensions is the col
 ! second dimensions is the row
@@ -32,11 +34,16 @@ TUPLE: data-table
     data-table new
     swap >>dimensions ;
 
-GENERIC: make-bar ( num -- str )
-
-M: data-table make-bar ( num -- str ) hbar <string> ;
-
 GENERIC: add-row ( obj -- obj' )
+
+: spaces ( num -- str ) CHAR: space <string> ;
+
+: make-bar ( num -- str ) hbar <string> ;
+
+: make-top ( num -- str ) make-bar ulcorner prefix urcorner suffix ;
+
+M: string add-row dup length 1 - spaces vbar prefix "\n" prepend
+    vbar suffix append ;
 
 M: data-table add-row ( obj -- obj' )
     dup dimensions>> dup second 1 + 1 rot set-nth ;

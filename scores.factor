@@ -45,8 +45,7 @@ M: score-table-class at* ( at obj -- val f )
 
 HELP: int-score
 { $values { "val" object } { "res" object } }
-{ $description "Takes a val and returns the defined value on the stack" }
+{ $description "Takes a val and returns the defined value" }
     ;
-
 
 
