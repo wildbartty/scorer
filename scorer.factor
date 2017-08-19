@@ -1,6 +1,7 @@
 USING: accessors assocs hashtables help.markup help.syntax io
-io.encodings.utf8 io.files json json.reader kernel math math.matrices
-math.parser namespaces parser sequences strings vectors ;
+io.encodings.utf8 io.files json json.reader kernel locals math
+math.matrices math.parser namespaces parser sequences strings vectors
+;
     
 
 IN: scorer
@@ -30,7 +31,7 @@ CONSTANT: score-table T{ score-table-class
 
 
 : load-score-config ( file -- )
-
+    ! puts the 
     score-table swap
     >>file dup file>> path>json >>table drop ;
 
@@ -77,14 +78,21 @@ M: person at* table>> at* ;
     V{ } >>val-arr
     ;
 
+: ask-input ( str -- str )
+   write flush readln ; 
+
 GENERIC: get-score-in ( obj -- obj )
 
 M: person get-score-in ( obj -- obj )
-    dup score-arr>> "Enter score\n" write flush
-    readln swap push ;
+    dup score-arr>> "Enter score\n" ask-input swap push ;
 
-! GENERIC: get-score-vals ( obj -- obj  obj obj )
-! 
+GENERIC: get-score-vals ( obj -- obj )
+
+M: person get-score-vals ( obj -- obj' )
+    [let dup score-arr>> [ int-score ] map :> x
+     x >>val-arr ]
+    ;
+
 ! M: person get-score-vals ( obj -- obj' obj obj )
 !    dup [ val-arr>> ] [ score-arr>> ] bi clone
 !    dup pop swapd int-score [ over push ] [ ] if
@@ -98,13 +106,20 @@ M: person write-score ( obj -- obj )
     
 GENERIC: score-round ( obj -- obj' )
 
-
-
 M: person score-round ( person -- person' )
+    0 >>current-round
     [ dup [ rounds>> ] [ current-round>> ] bi <= ]
     [ get-score-in [ 1 + ] change-current-round ]
     until
 !   get-score-vals
+    ;
+
+GENERIC: edit-shot ( a b -- b )
+
+M: person edit-shot 
+    dup swapd score-arr>>
+    "Enter new score\n" ask-input
+    -rot set-nth
     ;
 
 ! : numeric-for ( start limit body: ( ..a -- ..b) -- ..b )
