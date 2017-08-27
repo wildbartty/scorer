@@ -1,7 +1,7 @@
 {
     "mode" : "point",
     "sport" : "ABA 3 arrow round",
-    "rounds": 3,
+    "rounds": 5,
     "scores" : { 
 	"A" : 20,
 	"B" : 18,

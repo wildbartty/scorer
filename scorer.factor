@@ -1,52 +1,19 @@
 USING: accessors assocs hashtables help.markup help.syntax io
 io.encodings.utf8 io.files json json.reader kernel locals math
-math.matrices math.parser namespaces parser sequences strings vectors
-;
+math.functions.integer-logs math.matrices math.order math.parser
+namespaces parser sequences sorting strings vectors ;
     
 
 IN: scorer
+
+: true? ( obj -- t/f )
+    t and ;
 
 TUPLE: score-table-class
     { table hashtable
       initial: H{ } }
     file
     ;
-
-
-
-: <score-table> ( -- table ) score-table-class new H{ } clone >>table
-    "" >>file ;
-
-
-CONSTANT: score-table T{ score-table-class
-                         f H{ } f }
-
-! a constant word that is used to store the
-! configs for the scorer
-
-: reset-score-table ( -- ) score-table H{ } clone >>table
-    ! self-descriptive, resets score-table to it's inital
-    ! state
-    "" >>file drop ;
-
-
-: load-score-config ( file -- )
-    ! puts the 
-    score-table swap
-    >>file dup file>> path>json >>table drop ;
-
-: reload-score-config ( -- )
-    ! reloads the score-config
-    score-table file>> load-score-config ;
-
-M: score-table-class at* ( at obj -- val f )
-    table>> at* ;
-
-: int-score ( val -- res )
-    "scores" score-table at at ;
-
-CONSTANT: person-map H{ }
-CONSTANT: curr-date V{ } 
 
 TUPLE: person
     name
@@ -58,6 +25,37 @@ TUPLE: person
     { val-arr vector }
     current-round
     ;
+
+CONSTANT: person-map H{ }
+CONSTANT: curr-date V{ } 
+
+: <score-table> ( -- table ) score-table-class new H{ } clone >>table
+    "" >>file ;
+
+! stores the data
+: score-table ( -- x ) T{ score-table-class f H{ } f } ;
+
+
+: reset-score-table ( -- ) score-table H{ } clone >>table
+    ! resets the score table to initial value 
+    "" >>file drop ;
+
+
+: load-score-config ( file -- )
+    ! puts the json file in the score-table
+    score-table swap
+    >>file dup file>> path>json >>table drop ;
+
+: reload-score-config ( -- )
+    ! reloads the score-config
+    score-table file>> load-score-config ;
+
+M: score-table-class at* ( at obj -- val f )
+    table>> at* ;
+
+: score-val ( val -- res )
+    "scores" score-table at at ;
+
 
 : init ( -- ) "~/projects/scorer/table.factor" run-file ;
 
@@ -89,21 +87,31 @@ M: person get-score-in ( obj -- obj )
 GENERIC: get-score-vals ( obj -- obj )
 
 M: person get-score-vals ( obj -- obj' )
-    [let dup score-arr>> [ int-score ] map :> x
+    [let dup score-arr>> [ score-val ] map :> x
      x >>val-arr ]
     ;
 
 ! M: person get-score-vals ( obj -- obj' obj obj )
 !    dup [ val-arr>> ] [ score-arr>> ] bi clone
-!    dup pop swapd int-score [ over push ] [ ] if
+!    dup pop swapd score-val [ over push ] [ ] if
 !    ; 
 
+: sum-subseq ( from to seq -- num )
+   subseq sum ; 
+
+: get-accumulation ( vec -- vec )
+    clone
+    [let V{ } :> val
+     dup sum val push ]
+    ;
 
 GENERIC: write-score ( obj -- obj )
-
 M: person write-score ( obj -- obj )
     dup drop ;
     
+: check-score ( val -- bool )
+    score-val t and ;
+
 GENERIC: score-round ( obj -- obj' )
 
 M: person score-round ( person -- person' )
@@ -114,15 +122,44 @@ M: person score-round ( person -- person' )
 !   get-score-vals
     ;
 
-GENERIC: edit-shot ( a b -- b )
-
-M: person edit-shot 
+GENERIC: edit-score ( a b -- b )
+M: person edit-score 
     dup swapd score-arr>>
     "Enter new score\n" ask-input
     -rot set-nth
     ;
 
-! : numeric-for ( start limit body: ( ..a -- ..b) -- ..b )
-!   2dup 
-!    ;
+: mag ( no -- mag )
+    integer-log10 ;
+
+: len-no ( rounds -- len )
+    mag dup 3 > [ mag ] [ drop 3 ] if ;
+
+: get-longest ( seq -- elt )
+    [ [ length ] compare ] sort
+    first ;
+
+: val-lenc ( -- len )
+    "scores" score-table at keys get-longest length ;
+    
+
+GENERIC: person>string ( person -- str )
+
+M: person person>string ( person -- str )
+    [let :> person person name>> clone :> name
+     person val-arr>> clone :> val-arr
+     person score-arr>> clone :> score-arr
+     person rounds>> clone :> rounds
+     rounds len-no :> rounds-len
+     val-lenc :> val-length
+     name ]
+
+    ;
+
+: finish-round ( -- )
+    ;
+
+! : numeric-for ( x elt --  newelt )
+!    over - <iota> [ over  + ] map nip
+!    ; 
     
