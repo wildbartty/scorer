@@ -10,26 +10,20 @@ TUPLE: score-table-class
     file
     ;
 
-
-
 : <score-table> ( -- table ) score-table-class new H{ } clone >>table
     "" >>file ;
 
+! stores the data
+: score-table ( -- x ) T{ score-table-class f H{ } f } ;
 
-CONSTANT: score-table T{ score-table-class
-                         f H{ } f }
-
-! a constant word that is used to store the
-! configs for the scorer
 
 : reset-score-table ( -- ) score-table H{ } clone >>table
-    ! self-descriptive, resets score-table to it's inital
-    ! state
+    ! resets the score table to initial value 
     "" >>file drop ;
 
 
 : load-score-config ( file -- )
-
+    ! puts the json file in the score-table
     score-table swap
     >>file dup file>> path>json >>table drop ;
 
@@ -40,12 +34,7 @@ CONSTANT: score-table T{ score-table-class
 M: score-table-class at* ( at obj -- val f )
     table>> at* ;
 
-: int-score ( val -- res )
+: score-val ( val -- res )
     "scores" score-table at at ;
-
-HELP: int-score
-{ $values { "val" object } { "res" object } }
-{ $description "Takes a val and returns the defined value" }
-    ;
 
 

@@ -6,15 +6,40 @@ namespaces parser sequences sorting strings vectors ;
 
 IN: scorer
 
-: true? ( obj -- t/f )
-    t and ;
+CONSTANT: vbar     "\u002502" 
+CONSTANT: hbar     "\u002500" 
+CONSTANT: ulcorner "\u00250c" 
+CONSTANT: blcorner "\u002514" 
+CONSTANT: urcorner "\u002510" 
+CONSTANT: brcorner "\u002518" 
+CONSTANT: left-t   "\u00251c" 
+CONSTANT: right-t  "\u002524" 
+CONSTANT: up-t     "\u002538" 
+CONSTANT: down-t   "\u00252c" 
+CONSTANT: mid-t    "\u00253c" 
 
-TUPLE: score-table-class
-    { table hashtable
-      initial: H{ } }
-    file
+: mirror ( x y z -- z y x )
+    swap rot ;
+
+: spaces ( num -- str ) CHAR: space <string> ;
+
+: wrap-bar ( str -- str' )
+    left-t right-t surround ;
+
+: make-bar ( num -- str ) hbar <repetition> concat ;
+
+: make-top ( arr -- str ) make-bar ulcorner prefix urcorner suffix ;
+
+: make-mid-bar ( arr -- str )
+    [ length make-bar ] map mid-t join wrap-bar
+!    dup length 1 - 0  mirror subseq
+!    left-t right-t surround
     ;
 
+: make-in-bar ( arr -- str )
+    vbar join vbar vbar surround
+    ;
+    
 TUPLE: person
     name
     table
@@ -27,40 +52,20 @@ TUPLE: person
     ;
 
 CONSTANT: person-map H{ }
+
 CONSTANT: curr-date V{ } 
 
-: <score-table> ( -- table ) score-table-class new H{ } clone >>table
-    "" >>file ;
+CONSTANT: person-list V{ }
 
-! stores the data
-: score-table ( -- x ) T{ score-table-class f H{ } f } ;
+: true? ( obj -- t/f )
+    t and ;
 
-
-: reset-score-table ( -- ) score-table H{ } clone >>table
-    ! resets the score table to initial value 
-    "" >>file drop ;
-
-
-: load-score-config ( file -- )
-    ! puts the json file in the score-table
-    score-table swap
-    >>file dup file>> path>json >>table drop ;
-
-: reload-score-config ( -- )
-    ! reloads the score-config
-    score-table file>> load-score-config ;
-
-M: score-table-class at* ( at obj -- val f )
-    table>> at* ;
-
-: score-val ( val -- res )
-    "scores" score-table at at ;
-
+: ask-input ( str -- str )
+   write flush readln ; 
 
 : init ( -- ) "~/projects/scorer/table.factor" run-file ;
 
-: get-name ( -- obj ) "Enter name\n" write flush 
-    readln ;
+: get-name ( -- obj ) "Enter name\n" ask-input ;
 
 M: person at* table>> at* ;
 
@@ -74,10 +79,8 @@ M: person at* table>> at* ;
     0 >>current-round
     V{ } >>score-arr
     V{ } >>val-arr
+    dup person-list push
     ;
-
-: ask-input ( str -- str )
-   write flush readln ; 
 
 GENERIC: get-score-in ( obj -- obj )
 
@@ -132,26 +135,33 @@ M: person edit-score
 : mag ( no -- mag )
     integer-log10 ;
 
-: len-no ( rounds -- len )
-    mag dup 3 > [ mag ] [ drop 3 ] if ;
-
 : get-longest ( seq -- elt )
     [ [ length ] compare ] sort
     first ;
 
-: val-lenc ( -- len )
-    "scores" score-table at keys get-longest length ;
+: ?biggest ( n m -- n/m )
+    2dup > -rot ? ;
     
+: ?longest ( seq1 seq2 -- seq )
+    2dup [ length ] bi@ > -rot ? ; 
+
+: val-lenc ( -- len )
+    "scores" score-table at keys get-longest "score" ?longest
+ ;
+
+: len-no ( rounds -- len )
+    mag "no." length ?biggest ;
 
 GENERIC: person>string ( person -- str )
 
 M: person person>string ( person -- str )
-    [let :> person person name>> clone :> name
+    [let clone :> person person name>> clone :> name
      person val-arr>> clone :> val-arr
      person score-arr>> clone :> score-arr
      person rounds>> clone :> rounds
      rounds len-no :> rounds-len
      val-lenc :> val-length
+
      name ]
 
     ;
