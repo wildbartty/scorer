@@ -1,7 +1,8 @@
 USING: accessors assocs hashtables help.markup help.syntax io
 io.encodings.utf8 io.files json json.reader kernel locals math
 math.functions.integer-logs math.matrices math.order math.parser
-namespaces parser sequences sorting strings vectors ;
+namespaces parser scorer.table sequences sorting strings
+vectors ;
     
 
 IN: scorer
@@ -37,7 +38,7 @@ CONSTANT: mid-t    "\u00253c"
     ;
 
 : make-in-bar ( arr -- str )
-    vbar join vbar vbar surround
+    vbar join vbar vbar surround "\n" append
     ;
     
 TUPLE: person
@@ -89,10 +90,10 @@ M: person get-score-in ( obj -- obj )
 
 GENERIC: get-score-vals ( obj -- obj )
 
-M: person get-score-vals ( obj -- obj' )
-    [let dup score-arr>> [ score-val ] map :> x
-     x >>val-arr ]
-    ;
+! M: person get-score-vals ( obj -- obj' )
+!   [let dup score-arr>> [ score-val ] map :> x
+!    x >>val-arr ]
+!   ;
 
 ! M: person get-score-vals ( obj -- obj' obj obj )
 !    dup [ val-arr>> ] [ score-arr>> ] bi clone
@@ -113,7 +114,8 @@ M: person write-score ( obj -- obj )
     dup drop ;
     
 : check-score ( val -- bool )
-    score-val t and ;
+    !    score-val t and
+    ;
 
 GENERIC: score-round ( obj -- obj' )
 

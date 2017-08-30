@@ -2,7 +2,7 @@ USING: accessors assocs hashtables io io.encodings.utf8 io.files
 json.reader json.reader kernel math.matrices math.parser namespaces
 sequences strings vectors hashtables help help.markup help.syntax ;
 
-IN: scorer
+IN: scorer.table
 
 TUPLE: score-table-class
     { table hashtable
