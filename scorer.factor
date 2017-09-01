@@ -1,8 +1,7 @@
-USING: accessors assocs hashtables help.markup help.syntax io
+USING: accessors arrays assocs hashtables help.markup help.syntax io
 io.encodings.utf8 io.files json json.reader kernel locals math
 math.functions.integer-logs math.matrices math.order math.parser
-namespaces parser scorer.table sequences sorting strings
-vectors ;
+namespaces parser scorer.table sequences sorting strings vectors ;
     
 
 IN: scorer
@@ -20,12 +19,12 @@ CONSTANT: down-t   "\u00252c"
 CONSTANT: mid-t    "\u00253c" 
 
 : mirror ( x y z -- z y x )
-    swap rot ;
+    swap rot ; inline
 
-: spaces ( num -- str ) CHAR: space <string> ;
+: spaces ( num -- str: array ) CHAR: space <string> ; inline
 
-: wrap-bar ( str -- str' )
-    left-t right-t surround ;
+: wrap-bar ( str -- str' ) 
+    left-t right-t surround ; inline
 
 : make-bar ( num -- str ) hbar <repetition> concat ;
 
