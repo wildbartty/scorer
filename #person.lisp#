@@ -123,7 +123,7 @@ str-table but with the string case applied to each sublist"))
 		    (loop for x in (str-table score)
 		       collect (mapcar #'to-mid-bar x))
 		  collect (let ((lst (reduce #'(lambda (a b) (concatenate 'string a b)) y)))
-			    (subseq lst 0 (1- (length lst))))) +right-t+))
+			    (subseq lst 0 (1- (length lst))))) +right-t+ ))
 
 (defmethod reduce-strings ((score score))
   (let* ((plst (str-table score))
