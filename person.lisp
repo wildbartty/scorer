@@ -1,8 +1,11 @@
 (in-package :scorer)
 
 (defun t->string (x)
+  "converts any printable t to a string"
   (format nil "~a" x))
 
+;;; TODO: find a way to make these constants without
+;;; sbcl complaining when i recompile 
 (defparameter +hbar+    (t->string (code-char #x2500)))
 (defparameter +vbar+    (t->string (code-char #x2502)))
 (defparameter +ul-c+    (t->string (code-char #x250c)))
@@ -16,26 +19,35 @@
 (defparameter +mid-t+   (t->string (code-char #x253c)))
 
 (defun get-hash (object table)
+  "because i cant spell"
   (gethash object table))
 
 (defun ask-input (question)
+  "a helper function to get input
+   easily"
   (format t "~a~%" question)
   (read-line))
 
 (defun read-config (file)
+  "reads a config file"
   (let ((string (read-file-into-string file)))
     (cl-yaml:parse string)))
+;; explicit package used because parse is too generic
+;; meaning
 
 (defun str-arround (str thing1 thing2)
+  "returns a string wraped with "
   (concatenate 'string thing1 str thing2))
 
 (defun make-bar (num)
+  "makes a string that is num long with all elements equal to +hbar+"
   (make-string num :initial-element (aref +hbar+ 0)))
 
 (defvar *current-config* (read-config "test.yaml"))
 (defvar *score-table* (gethash "scores" *current-config*))
 
 (defclass score ()
+  "the class that stores the score"
   ((table :accessor p-table)
    (score-table :accessor score-table)
    (score :accessor score)
@@ -46,6 +58,7 @@
    (ret-table-str :accessor str-table)))
 
 (defmethod initialize-instance :after ((score score) &key)
+  "sets the class slots base on current config"
   (let ((table *current-config*)
 	(score-table *score-table*))
     (setf (p-table score) table
@@ -54,23 +67,37 @@
 (defgeneric get-score-in (var))
 
 (defmethod get-score-in ((score score))
+  "simple helper function"
   (push (ask-input "score?") (score score)))
 
-(defmethod parse-score (score val)
+(defmethod parse-score ((score  score) val)
+  "returns the value of val in score"
   (gethash val (score-table score)))
 
 (defmethod get-score-vals ((score score))
+  "returns the parsed values of score"
   (mapcar #'(lambda (x) (parse-score score x)) (score score)))
 
 (defmethod test-score ((score score))
+  "tests if there are undefined elements in score"
   (let* ((place (get-score-vals score))
 	 (tlist (member nil place)))
     (if tlist
-	(values place (- (length place) (length tlist)))
-	(values place -1)
-	)))
+	(- (length place) (length tlist))
+	-1)))
+
+(defgeneric set-score-at (score place value))
+
+(defmethod set-score-at ((score score) (place fixnum) value)
+  (setf (nth place (score score)) value))
 
 
+(defmethod running-score ((score score))
+  (loop
+     for x from 0 upto (length (final-score score))
+     for y in (final-score score)
+       ))
+;;ignore the cyclic dependency here
 (defmethod running-score ((score score))
   (setf (running-score-val score)
 	(let ((list (final-score score)))
@@ -134,7 +161,6 @@ str-table but with the string case applied to each sublist"))
 			 collect (let ((lst (reduce #'(lambda (a b) (concatenate 'string a b)) y)))
 				   (subseq lst 0 (1- (length lst))))) +right-t+)))
     strs
-;    (mapcar #'(lambda (x) (str-arround )))
     ))
 
 
