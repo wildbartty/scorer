@@ -3,17 +3,17 @@
 (defun t->string (x)
   (format nil "~a" x))
 
-(defconstant +hbar+    (t->string (code-char #x2500)))
-(defconstant +vbar+    (t->string (code-char #x2502)))
-(defconstant +ul-c+    (t->string (code-char #x250c)))
-(defconstant +ur-c+    (t->string (code-char #x2510)))
-(defconstant +dr-c+    (t->string (code-char #x2514)))
-(defconstant +dl-c+    (t->string (code-char #x2518)))
-(defconstant +left-t+  (t->string (code-char #x251c)))
-(defconstant +right-t+ (t->string (code-char #x2524)))
-(defconstant +up-t+    (t->string (code-char #x252c)))
-(defconstant +down-t+  (t->string (code-char #x2534)))
-(defconstant +mid-t+   (t->string (code-char #x253c)))
+(defparameter +hbar+    (t->string (code-char #x2500)))
+(defparameter +vbar+    (t->string (code-char #x2502)))
+(defparameter +ul-c+    (t->string (code-char #x250c)))
+(defparameter +ur-c+    (t->string (code-char #x2510)))
+(defparameter +dr-c+    (t->string (code-char #x2514)))
+(defparameter +dl-c+    (t->string (code-char #x2518)))
+(defparameter +left-t+  (t->string (code-char #x251c)))
+(defparameter +right-t+ (t->string (code-char #x2524)))
+(defparameter +up-t+    (t->string (code-char #x252c)))
+(defparameter +down-t+  (t->string (code-char #x2534)))
+(defparameter +mid-t+   (t->string (code-char #x253c)))
 
 (defun get-hash (object table)
   (gethash object table))
@@ -26,7 +26,8 @@
   (let ((string (read-file-into-string file)))
     (cl-yaml:parse string)))
 
-
+(defun str-arround (str thing1 thing2)
+  (concatenate 'string thing1 str thing2))
 
 (defun make-bar (num)
   (make-string num :initial-element (aref +hbar+ 0)))
@@ -44,7 +45,6 @@
    (ret-table :accessor ret-table)
    (ret-table-str :accessor str-table)))
 
-
 (defmethod initialize-instance :after ((score score) &key)
   (let ((table *current-config*)
 	(score-table *score-table*))
@@ -54,14 +54,22 @@
 (defgeneric get-score-in (var))
 
 (defmethod get-score-in ((score score))
-  (push (ask-input "score?") (score score))
-  )
+  (push (ask-input "score?") (score score)))
 
 (defmethod parse-score (score val)
   (gethash val (score-table score)))
 
 (defmethod get-score-vals ((score score))
   (mapcar #'(lambda (x) (parse-score score x)) (score score)))
+
+(defmethod test-score ((score score))
+  (let* ((place (get-score-vals score))
+	 (tlist (member nil place)))
+    (if tlist
+	(values place (- (length place) (length tlist)))
+	(values place -1)
+	)))
+
 
 (defmethod running-score ((score score))
   (setf (running-score-val score)
@@ -118,12 +126,17 @@ str-table but with the string case applied to each sublist"))
   (concatenate 'string (make-bar (length str)) +mid-t+))
 
 (defmethod to-mid-bar ((score score))
-  (concatenate 'string +left-t+ 
-	       (loop for y in
-		    (loop for x in (str-table score)
-		       collect (mapcar #'to-mid-bar x))
-		  collect (let ((lst (reduce #'(lambda (a b) (concatenate 'string a b)) y)))
-			    (subseq lst 0 (1- (length lst))))) +right-t+))
+  (let ((strs 
+	 (concatenate 'string +left-t+ 
+		      (loop for y in
+			   (loop for x in (str-table score)
+			      collect (mapcar #'to-mid-bar x))
+			 collect (let ((lst (reduce #'(lambda (a b) (concatenate 'string a b)) y)))
+				   (subseq lst 0 (1- (length lst))))) +right-t+)))
+    strs
+;    (mapcar #'(lambda (x) (str-arround )))
+    ))
+
 
 (defmethod reduce-strings ((score score))
   (let* ((plst (str-table score))
