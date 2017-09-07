@@ -103,15 +103,15 @@
   (setf (nth place (score score)) value))
 
 
-(defmethod running-score :before ((score score))
+;;ignore the cyclic dependency here
+(defmethod running-score ((score score))
+  "sets (running-score score) to be the accumulation of the past scores"
   (loop
      for x from 0 upto (length (final-score score))
      for y in (final-score score)
      when (not y) do (set-score-at score x
 				   (ask-input (format nil "bad number at ~a~%whats the proper score?" (1+ x))))
-     finally (setf (final-score score) (get-score-vals score))))
-;;ignore the cyclic dependency here
-(defmethod running-score ((score score))
+     finally (setf (final-score score) (get-score-vals score)))
   (setf (running-score-val score)
 	(let* ((list (final-score score))
 	       (len (length list)))
