@@ -183,8 +183,7 @@ str-table but with the string case applied to each sublist"))
 
 
 (defmethod reduce-strings ((score score))
-  (let* ((plst (str-table score))
-	 (lst (add-vbar score))
+  (let* ((lst (add-vbar score))
 	 (ret0 
 	  (loop for x in lst
 	     collect (reduce #'(lambda (a b) (concatenate 'string a b)) x))))
