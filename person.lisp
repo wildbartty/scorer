@@ -6,18 +6,29 @@
 
 ;;; TODO: find a way to make these constants without
 ;;; sbcl complaining when i recompile 
-(defparameter +hbar+    (t->string (code-char #x2500)))
-(defparameter +vbar+    (t->string (code-char #x2502)))
-(defparameter +ul-c+    (t->string (code-char #x250c)))
-(defparameter +ur-c+    (t->string (code-char #x2510)))
-(defparameter +dr-c+    (t->string (code-char #x2514)))
-(defparameter +dl-c+    (t->string (code-char #x2518)))
-(defparameter +left-t+  (t->string (code-char #x251c)))
-(defparameter +right-t+ (t->string (code-char #x2524)))
-(defparameter +up-t+    (t->string (code-char #x252c)))
-(defparameter +down-t+  (t->string (code-char #x2534)))
-(defparameter +mid-t+   (t->string (code-char #x253c)))
+;; (defparameter +hbar+    (t->string (code-char #x2500)))
+;; (defparameter +vbar+    (t->string (code-char #x2502)))
+;; (defparameter +ul-c+    (t->string (code-char #x250c)))
+;; (defparameter +ur-c+    (t->string (code-char #x2510)))
+;; (defparameter +dr-c+    (t->string (code-char #x2514)))
+;; (defparameter +dl-c+    (t->string (code-char #x2518)))
+;; (defparameter +left-t+  (t->string (code-char #x251c)))
+;; (defparameter +right-t+ (t->string (code-char #x2524)))
+;; (defparameter +up-t+    (t->string (code-char #x252c)))
+;; (defparameter +down-t+  (t->string (code-char #x2534)))
+;; (defparameter +mid-t+   (t->string (code-char #x253c)))
 
+(defparameter +hbar+    "-")
+(defparameter +vbar+    "|")
+(defparameter +ul-c+    "+")
+(defparameter +ur-c+    "+")
+(defparameter +dr-c+    "+")
+(defparameter +dl-c+    "+")
+(defparameter +left-t+  "+")
+(defparameter +right-t+ "+")
+(defparameter +up-t+    "+")
+(defparameter +down-t+  "+")
+(defparameter +mid-t+   "+")
 (defun get-hash (object table)
   "because i cant spell"
   (gethash object table))
@@ -47,7 +58,7 @@
 (defvar *score-table* (gethash "scores" *current-config*))
 
 (defclass score ()
-  "the class that stores the score"
+  ;;the class that stores the score
   ((table :accessor p-table)
    (score-table :accessor score-table)
    (score :accessor score)
@@ -92,18 +103,20 @@
   (setf (nth place (score score)) value))
 
 
-(defmethod running-score ((score score))
+(defmethod running-score :before ((score score))
   (loop
      for x from 0 upto (length (final-score score))
      for y in (final-score score)
-       ))
+     when (not y) do (set-score-at score x
+				   (ask-input (format nil "bad number at ~a~%whats the proper score?" (1+ x))))
+     finally (setf (final-score score) (get-score-vals score))))
 ;;ignore the cyclic dependency here
 (defmethod running-score ((score score))
   (setf (running-score-val score)
-	(let ((list (final-score score)))
-	  (let ((len (length list)))
-	    (loop for x from 1 upto len
-	       collect (reduce #'+ (subseq list 0 x)))))))
+	(let* ((list (final-score score))
+	       (len (length list)))
+	  (loop for x from 1 upto len
+	     collect (reduce #'+ (subseq list 0 x))))))
 
 (defmethod collect-to-table ((score score))
   (setf (ret-table score) 
@@ -139,10 +152,13 @@
 (defun append-to-all (lst char) 
   (loop for x in lst 
      collect (loop for y in x
-		collect (coerce (append (coerce y 'list) (list char)) 'string))))
+		collect (concatenate 'string y char))))
 
-(defun add-vbar (x) 
-  (append-to-all x +vbar+))
+(defmethod add-vbar ((score score)) 
+  (let ((lst (str-table score)))
+    (loop for x in lst 
+       collect (loop for y in x
+		  collect (concatenate 'string y +vbar+)))))
 
 (defgeneric to-mid-bar (str)
   (:documentation " on a string it returns
@@ -152,23 +168,28 @@ str-table but with the string case applied to each sublist"))
 (defmethod to-mid-bar ((str string))
   (concatenate 'string (make-bar (length str)) +mid-t+))
 
+(defmethod to-mid-bar (string)
+
+  (concatenate 'string +left-t+ 
+	       (loop for x in string
+		  collect (mapcar #'to-mid-bar x))
+	       +right-t+))
 (defmethod to-mid-bar ((score score))
-  (let ((strs 
-	 (concatenate 'string +left-t+ 
-		      (loop for y in
-			   (loop for x in (str-table score)
-			      collect (mapcar #'to-mid-bar x))
-			 collect (let ((lst (reduce #'(lambda (a b) (concatenate 'string a b)) y)))
-				   (subseq lst 0 (1- (length lst))))) +right-t+)))
-    strs
-    ))
+  (concatenate 'string +left-t+ 
+	       (loop for x in (str-table score)
+		  collect (mapcar #'to-mid-bar x))
+	       +right-t+))
+
 
 
 (defmethod reduce-strings ((score score))
   (let* ((plst (str-table score))
-	 (lst (add-vbar plst)))
-    (loop for x in lst
-       collect (reduce #'(lambda (a b) (concatenate 'string a b)) x))))
+	 (lst (add-vbar score))
+	 (ret0 
+	  (loop for x in lst
+	     collect (reduce #'(lambda (a b) (concatenate 'string a b)) x))))
+    (loop for x in ret0
+	 collect (concatenate 'string +vbar+ x))))
 
 (defclass person (score)
   ((name :accessor name)
