@@ -6,6 +6,7 @@
   :license "Specify license here"
   :serial t
   :depends-on (:alexandria
+	       :split-sequence
 	       :cl-yaml)
   :components ((:file "package")
 	       (:file "person")

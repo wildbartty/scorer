@@ -110,31 +110,16 @@
      for x from 0 upto (length (final-score score))
      for y in (final-score score)
      when (not y) do (set-score-at score x
-				   (ask-input (format nil "bad number at ~a~%whats the proper score?" (1+ x))))
+				   (ask-input (format
+					       nil
+					       "bad number at ~a~%whats the proper score?"
+					       (1+ x))))
      finally (setf (final-score score) (get-score-vals score)))
-    (setf (running-score-val score)
-	  (let* ((list (final-score score))
-		 (len (length list)))
-	    (loop for x from 1 upto len
-	       collect (reduce #'+ (subseq list 0 x))))))
-
-(defmethod collect-to-table ((score score))
-  (setf (ret-table score) 
-	(let ((score (score score))
-	      (final-score (final-score score))
-	      (running-score (running-score-val score)))
-	  (loop
-	     for x in score
-	     for y in final-score
-	     for z in running-score
-	     collect (list x y z)))))
-
-(defmethod collect-to-table :after ((score score))
-  "Converts all of the contents in ret-table to a string"
-  (setf (str-table score)
-	;;(mapcar #'(lambda (x) (mapcar #'(lambda (y) (t->string y)) x)) *)
-	;;why did this not throw an error?
-	(mapcar #'(lambda (x) (mapcar #'(lambda (y) (t->string y)) x)) (ret-table score))))
+  (setf (running-score-val score)
+	(let* ((list (final-score score))
+	       (len (length list)))
+	  (loop for x from 1 upto len
+	     collect (reduce #'+ (subseq list 0 x))))))
 
 (defmethod score-round ((score score))
   (setf (score score) nil)
@@ -154,6 +139,24 @@
      collect (loop for y in x
 		collect (concatenate 'string y char))))
 
+(defmethod collect-to-table ((score score))
+  (setf (ret-table score) 
+	(let ((score (score score))
+	      (final-score (final-score score))
+	      (running-score (running-score-val score)))
+	  (loop
+	     for x in score
+	     for y in final-score
+	     for z in running-score
+	     collect (list x y z)))))
+
+(defmethod collect-to-table :after ((score score))
+  "Converts all of the contents in ret-table to a string"
+  (setf (str-table score)
+	;;(mapcar #'(lambda (x) (mapcar #'(lambda (y) (t->string y)) x)) *)
+	;;why did this not throw an error?
+	(mapcar #'(lambda (x) (mapcar #'(lambda (y) (t->string y)) x)) (ret-table score))))
+
 (defmethod add-vbar ((score score)) 
   (let ((lst (str-table score)))
     (loop for x in lst 
@@ -161,7 +164,7 @@
 		  collect (concatenate 'string y +vbar+)))))
 
 (defgeneric to-mid-bar (str)
-  (:documentation " on a string it returns
+  (:documentation "on a string it returns
 a string with length n+1 on a score object it returns the
 str-table but with the string case applied to each sublist"))
 
@@ -180,27 +183,27 @@ str-table but with the string case applied to each sublist"))
 		  collect (mapcar #'to-mid-bar x))
 	       +right-t+))
 
-
-
 (defmethod reduce-strings ((score score))
   (let* ((lst (add-vbar score))
 	 (ret0 
 	  (loop for x in lst
 	     collect (reduce #'(lambda (a b) (concatenate 'string a b)) x))))
     (loop for x in ret0
-	 collect (concatenate 'string +vbar+ x))))
+       collect (concatenate 'string +vbar+ x))))
+
+(defun split-by-spaces (str)
+  (split-sequence #\space str))
 
 (defclass person (score)
   ((name :accessor name)
    (score :reader score :initform (make-instance 'score))
    (forms :accessor forms :initform nil)
-   (ammount :initform 0 :accessor p-ammount :allocation :class)
-   )) 
+   (ammount :initform 0 :accessor p-ammount :allocation :class))) 
 
 (defmethod initialize-instance :after ((person person) &key)
   (let ((name (ask-input "whats the name"))
 	(forms (ask-input "what are the forms")))
     (incf (p-ammount person))
-    
+    (setf (forms person) (split-by-spaces forms))
     (setf (name person) name)))
 
