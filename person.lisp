@@ -102,7 +102,6 @@
 (defmethod set-score-at ((score score) (place fixnum) value)
   (setf (nth place (score score)) value))
 
-
 ;;ignore the cyclic dependency here
 (defmethod running-score ((score score))
   "sets (running-score score) to be the accumulation of the past scores"
@@ -163,6 +162,27 @@
        collect (loop for y in x
 		  collect (concatenate 'string y +vbar+)))))
 
+(defmethod col1-length ((score score))
+  (length (t->string (rounds score))))
+
+(defmethod col2-length ((score score))
+  (loop for x being each hash-key in (score-table score)
+       maximize (length (t->string x))))
+
+(defmethod col3-length ((score  score)) 
+  (loop for x being each hash-value in (score-table score)
+       maximize (length (t->string x))))
+
+(defmethod col4-length ((score score))
+  (loop for x in (mapcar #'t->string (running-score-val score))
+       maximize (length x)))
+
+(defmethod rightpad ((num fixnum) (str string))
+  (labels ((spaces (num)
+	     (when (> num 0)
+	       (make-string num :initial-element #\space))))
+    (concatenate 'string  (spaces (- num (length str))) str)))
+
 (defgeneric to-mid-bar (str)
   (:documentation "on a string it returns
 a string with length n+1 on a score object it returns the
@@ -172,7 +192,6 @@ str-table but with the string case applied to each sublist"))
   (concatenate 'string (make-bar (length str)) +mid-t+))
 
 (defmethod to-mid-bar (string)
-
   (concatenate 'string +left-t+ 
 	       (loop for x in string
 		  collect (mapcar #'to-mid-bar x))
