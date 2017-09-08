@@ -112,11 +112,11 @@
      when (not y) do (set-score-at score x
 				   (ask-input (format nil "bad number at ~a~%whats the proper score?" (1+ x))))
      finally (setf (final-score score) (get-score-vals score)))
-  (setf (running-score-val score)
-	(let* ((list (final-score score))
-	       (len (length list)))
-	  (loop for x from 1 upto len
-	     collect (reduce #'+ (subseq list 0 x))))))
+    (setf (running-score-val score)
+	  (let* ((list (final-score score))
+		 (len (length list)))
+	    (loop for x from 1 upto len
+	       collect (reduce #'+ (subseq list 0 x))))))
 
 (defmethod collect-to-table ((score score))
   (setf (ret-table score) 
@@ -193,11 +193,14 @@ str-table but with the string case applied to each sublist"))
 (defclass person (score)
   ((name :accessor name)
    (score :reader score :initform (make-instance 'score))
+   (forms :accessor forms :initform nil)
    (ammount :initform 0 :accessor p-ammount :allocation :class)
    )) 
 
 (defmethod initialize-instance :after ((person person) &key)
-  (let ((name (ask-input "whats the name")))
+  (let ((name (ask-input "whats the name"))
+	(forms (ask-input "what are the forms")))
     (incf (p-ammount person))
+    
     (setf (name person) name)))
 
