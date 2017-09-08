@@ -119,6 +119,27 @@
 	       (len (length list)))
 	  (loop for x from 1 upto len
 	     collect (reduce #'+ (subseq list 0 x))))))
+<<<<<<< HEAD:person.lisp
+=======
+
+(defmethod collect-to-table ((score score))
+  (setf (ret-table score) 
+	(let ((score (score score))
+	      (final-score (final-score score))
+	      (running-score (running-score-val score)))
+	  (loop
+	     for x in score
+	     for y in final-score
+	     for z in running-score
+	     collect (list x y z)))))
+
+(defmethod collect-to-table :after ((score score))
+  "Converts all of the contents in ret-table to a string"
+  (setf (str-table score)
+	;;(mapcar #'(lambda (x) (mapcar #'(lambda (y) (t->string y)) x)) *)
+	;;why did this not throw an error?
+	(mapcar #'(lambda (x) (mapcar #'(lambda (y) (t->string y)) x)) (ret-table score))))
+>>>>>>> a8fe68ac424278f9eca0c7e2812771c820aca353:classes.lisp
 
 (defmethod score-round ((score score))
   (setf (score score) nil)
@@ -209,20 +230,33 @@ str-table but with the string case applied to each sublist"))
 	     collect (reduce #'(lambda (a b) (concatenate 'string a b)) x))))
     (loop for x in ret0
        collect (concatenate 'string +vbar+ x))))
+<<<<<<< HEAD:person.lisp
 
 (defun split-by-spaces (str)
   (split-sequence #\space str))
+=======
+>>>>>>> a8fe68ac424278f9eca0c7e2812771c820aca353:classes.lisp
 
 (defclass person (score)
   ((name :accessor name)
    (score :reader score :initform (make-instance 'score))
    (forms :accessor forms :initform nil)
+<<<<<<< HEAD:person.lisp
    (ammount :initform 0 :accessor p-ammount :allocation :class))) 
+=======
+   (ammount :initform 0 :accessor p-ammount :allocation :class)))
+>>>>>>> a8fe68ac424278f9eca0c7e2812771c820aca353:classes.lisp
 
 (defmethod initialize-instance :after ((person person) &key)
   (let ((name (ask-input "whats the name"))
 	(forms (ask-input "what are the forms")))
     (incf (p-ammount person))
+<<<<<<< HEAD:person.lisp
     (setf (forms person) (split-by-spaces forms))
+=======
+>>>>>>> a8fe68ac424278f9eca0c7e2812771c820aca353:classes.lisp
     (setf (name person) name)))
 
+
+(defclass round ()
+  (people :accessor people :initform (make-hash-table)))
