@@ -120,24 +120,6 @@
 	  (loop for x from 1 upto len
 	     collect (reduce #'+ (subseq list 0 x))))))
 
-(defmethod collect-to-table ((score score))
-  (setf (ret-table score) 
-	(let ((score (score score))
-	      (final-score (final-score score))
-	      (running-score (running-score-val score)))
-	  (loop
-	     for x in score
-	     for y in final-score
-	     for z in running-score
-	     collect (list x y z)))))
-
-(defmethod collect-to-table :after ((score score))
-  "Converts all of the contents in ret-table to a string"
-  (setf (str-table score)
-	;;(mapcar #'(lambda (x) (mapcar #'(lambda (y) (t->string y)) x)) *)
-	;;why did this not throw an error?
-	(mapcar #'(lambda (x) (mapcar #'(lambda (y) (t->string y)) x)) (ret-table score))))
-
 (defmethod score-round ((score score))
   (setf (score score) nil)
   (setf (score score)
@@ -235,7 +217,7 @@ str-table but with the string case applied to each sublist"))
   ((name :accessor name)
    (score :reader score :initform (make-instance 'score))
    (forms :accessor forms :initform nil)
-   (ammount :initform 0 :accessor p-ammount :allocation :class)))
+   (ammount :initform 0 :accessor p-ammount :allocation :class))) 
 
 (defmethod initialize-instance :after ((person person) &key)
   (let ((name (ask-input "whats the name"))
@@ -244,6 +226,3 @@ str-table but with the string case applied to each sublist"))
     (setf (forms person) (split-by-spaces forms))
     (setf (name person) name)))
 
-
-(defclass round ()
-  (people :accessor people :initform (make-hash-table)))
