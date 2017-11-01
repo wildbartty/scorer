@@ -19,7 +19,7 @@
 ;; (defparameter +mid-t+   (t->string (code-char #x253c)))
 
 (defparameter +hbar+    "-")
-(defparameter +vbar+    "|")
+(defparameter +vbar+    (t->string (code-char #x2502)))
 (defparameter +ul-c+    "+")
 (defparameter +ur-c+    "+")
 (defparameter +dr-c+    "+")
@@ -28,7 +28,8 @@
 (defparameter +right-t+ "+")
 (defparameter +up-t+    "+")
 (defparameter +down-t+  "+")
-(defparameter +mid-t+   "+")
+(defparameter +mid-t+   (t->string (code-char #x253c)))
+
 (defun get-hash (object table)
   "because i cant spell"
   (gethash object table))
@@ -95,7 +96,7 @@
 	 (tlist (member nil place)))
     (if tlist
 	(- (length place) (length tlist))
-	-1)))
+      nil)))
 
 (defgeneric set-score-at (score place value))
 
@@ -106,19 +107,23 @@
 (defmethod running-score ((score score))
   "sets (running-score score) to be the accumulation of the past scores"
   (loop
-     for x from 0 upto (length (final-score score))
-     for y in (final-score score)
-     when (not y) do (set-score-at score x
-				   (ask-input (format
-					       nil
-					       "bad number at ~a~%whats the proper score?"
-					       (1+ x))))
-     finally (setf (final-score score) (get-score-vals score)))
+   for x from 0 upto (length (final-score score))
+   for y in (final-score score)
+   when (not y) do (set-score-at score x
+				 (let* ((fun (lambda () (ask-input (format
+						    nil
+						    "bad number at ~a~%whats the proper score?"
+						    (1+ x)))))
+					(ret (funcall fun)))
+				   (loop until (parse-score score ret)
+				      do (setq ret (funcall fun))
+					return ret)))
+   finally (setf (final-score score) (get-score-vals score)))
   (setf (running-score-val score)
 	(let* ((list (final-score score))
 	       (len (length list)))
 	  (loop for x from 1 upto len
-	     collect (reduce #'+ (subseq list 0 x))))))
+		collect (reduce #'+ (subseq list 0 x))))))
 
 (defmethod collect-to-table ((score score))
   (setf (ret-table score) 
@@ -126,10 +131,10 @@
 	      (final-score (final-score score))
 	      (running-score (running-score-val score)))
 	  (loop
-	     for x in score
-	     for y in final-score
-	     for z in running-score
-	     collect (list x y z)))))
+	   for x in score
+	   for y in final-score
+	   for z in running-score
+	   collect (list x y z)))))
 
 (defmethod collect-to-table :after ((score score))
   "Converts all of the contents in ret-table to a string"
@@ -142,9 +147,9 @@
   (setf (score score) nil)
   (setf (score score)
 	(loop
-	   for x from 1 upto (rounds score)
-	   collect (ask-input "score?")
-	     )))
+	 for x from 1 upto (rounds score)
+	 collect (ask-input "score?")
+	 )))
 
 (defmethod score-round :after ((score score))
   (setf (final-score score) (get-score-vals score)
@@ -153,8 +158,8 @@
 
 (defun append-to-all (lst char) 
   (loop for x in lst 
-     collect (loop for y in x
-		collect (concatenate 'string y char))))
+	collect (loop for y in x
+		      collect (concatenate 'string y char))))
 
 (defmethod collect-to-table ((score score))
   (setf (ret-table score) 
@@ -162,10 +167,10 @@
 	      (final-score (final-score score))
 	      (running-score (running-score-val score)))
 	  (loop
-	     for x in score
-	     for y in final-score
-	     for z in running-score
-	     collect (list x y z)))))
+	   for x in score
+	   for y in final-score
+	   for z in running-score
+	   collect (list x y z)))))
 
 (defmethod collect-to-table :after ((score score))
   "Converts all of the contents in ret-table to a string"
@@ -174,31 +179,38 @@
 	;;why did this not throw an error?
 	(mapcar #'(lambda (x) (mapcar #'(lambda (y) (t->string y)) x)) (ret-table score))))
 
-(defmethod add-vbar ((score score)) 
-  (let ((lst (str-table score)))
-    (loop for x in lst 
-       collect (loop for y in x
-		  collect (concatenate 'string y +vbar+)))))
+(defmethod get-col-lengths ((score score ))
+  "gets the width of columns when converting to a table"
+  ;; we dont need to check the type in the funcs as it is done by
+  ;; the defmethod
+  (labels ((col2-length (score)
+			(max (length "score")
+			     (loop for x being each hash-key in (score-table score)
+				   maximize (length (t->string x)))))
+	   (col3-length (score) 
+			(max (length "val")
+			     (loop for x being each hash-value in (score-table score)
+				   maximize (length (t->string x)))))
+	   (col4-length (score)
+			(max (length "acc")
+			     (loop for x in (mapcar #'t->string (running-score-val score))
+				   maximize (length x)))))
+    (list (col2-length score)
+	  (col3-length score)
+	  (col4-length score)
+	  )))
 
 (defmethod col1-length ((score score))
-  (length (t->string (rounds score))))
-
-(defmethod col2-length ((score score))
-  (loop for x being each hash-key in (score-table score)
-       maximize (length (t->string x))))
-
-(defmethod col3-length ((score  score)) 
-  (loop for x being each hash-value in (score-table score)
-       maximize (length (t->string x))))
-
-(defmethod col4-length ((score score))
-  (loop for x in (mapcar #'t->string (running-score-val score))
-       maximize (length x)))
+  ;; out of method as it makes more sense
+  ;; and is used in the table not in the
+  ;; making of the itermediate strings
+  (max (length "no")
+       (length (t->string (rounds score)))))
 
 (defmethod rightpad ((num fixnum) (str string))
   (labels ((spaces (num)
-	     (when (> num 0)
-	       (make-string num :initial-element #\space))))
+		   (when (> num 0)
+		     (make-string num :initial-element #\space))))
     (concatenate 'string  (spaces (- num (length str))) str)))
 
 (defgeneric to-mid-bar (str)
@@ -212,21 +224,36 @@ str-table but with the string case applied to each sublist"))
 (defmethod to-mid-bar (string)
   (concatenate 'string +left-t+ 
 	       (loop for x in string
-		  collect (mapcar #'to-mid-bar x))
+		     collect (mapcar #'to-mid-bar x))
 	       +right-t+))
+
 (defmethod to-mid-bar ((score score))
   (concatenate 'string +left-t+ 
 	       (loop for x in (str-table score)
-		  collect (mapcar #'to-mid-bar x))
+		     collect (mapcar #'to-mid-bar x))
 	       +right-t+))
 
-(defmethod reduce-strings ((score score))
+(defmethod add-vbar ((score score)) 
+  (let ((lst (str-table score))
+	(cols (get-col-lengths score)))
+      (loop for x in lst 
+	    collect (loop for y in x
+			  for num upto (length x)
+			  collect (concatenate 'string (rightpad (nth num cols) y) +vbar+)))))
+
+
+(defmethod get-filled-columns ((score score))
   (let* ((lst (add-vbar score))
 	 (ret0 
 	  (loop for x in lst
-	     collect (reduce #'(lambda (a b) (concatenate 'string a b)) x))))
-    (loop for x in ret0
-       collect (concatenate 'string +vbar+ x))))
+		collect (reduce #'(lambda (a b) (concatenate 'string a b)) x))))
+    (append
+     (loop for x in ret0
+	   for y from 0 upto (length ret0)
+	   collect (let ((no (rightpad (col1-length score)
+				       (t->string (1+ y)))))
+		     (concatenate 'string +vbar+ no +vbar+ x)))
+     (cons "|no|score|val|acc|" nil))))
 
 (defun split-by-spaces (str)
   (split-sequence #\space str))
@@ -245,5 +272,5 @@ str-table but with the string case applied to each sublist"))
     (setf (name person) name)))
 
 
-(defclass round ()
-  (people :accessor people :initform (make-hash-table)))
+;; (defclass round ()
+;;   (people :accessor people :initform (make-hash-table)))
