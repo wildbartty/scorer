@@ -9,6 +9,8 @@
 	       :split-sequence
 	       :cl-yaml)
   :components ((:file "package")
+	       (:file "time")
+	       (:file "score")
 	       (:file "person")
                (:file "scorer")))
 
