@@ -28,6 +28,14 @@
   (let ((t1 (time->int time)) (t2 (time->int time2)))
     (> t1 t2)))
 
+(defmethod lt-time ((time s-time) (time2 s-time))
+  (not (gt-time time time2)))
+
+(defmethod add-time ((time s-time) (time2 s-time))
+  (let ((t1 (time->int time)) (t2 (time->int time2)))
+    (int->time (+ t1 t2))
+  ))
+
 (defmethod cl:print-object ((time s-time) stream)
   (print-unreadable-object (time stream :type t)
     (with-slots (ms sec mins hour) time
