@@ -1,12 +1,12 @@
 * Person-class
 ** TODO [#A] File output
-** DONE File format
+** DONE File input format
 ** DONE Score-interpretation
 ** TODO [#C] Pretty printing
 ** TODO [#C] Frontend 
 * General features
 ** TODO [#B] Time mode
-** DONE Score mode
+** DONE Score number mode
 ** DONE Edit current round
 ** TODO [#C] Ranking
-** TODO [#C] Edit past rounds
+** DONE [#C] Edit past rounds
