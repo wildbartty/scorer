@@ -6,6 +6,13 @@
    (mins :initarg :mins :initform 0 :accessor mins)
    (hour :initarg :hour :initform 0 :accessor hour)))
 
+(defclass date ()
+  (
+   (day :initarg :day :initform 0 :accessor day)
+   (month :initarg :month :initform 0 :accessor month)
+   (year :initarg :year :initform 0 :accessor year)
+   ))
+
 
 (defmethod time->int ((time s-time))
   (let ((ret (ash (hour time) 19)))
