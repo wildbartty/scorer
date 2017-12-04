@@ -12,5 +12,6 @@
 	       (:file "time")
 	       (:file "score")
 	       (:file "person")
+	       (:file "db")
                (:file "scorer")))
 

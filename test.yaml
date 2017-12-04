@@ -25,7 +25,7 @@ scores: {
   3B: 6,
   3C: 4,
   3a: 8,
-  miss: 0
+  miss: 0,
   default: 0 
   },
   metadata: 2
