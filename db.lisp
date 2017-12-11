@@ -2,6 +2,14 @@
 
 (defvar *db* nil)
 
+(defvar *current-round* nil)
+
+(defun make-base-table ()
+  (let ((tmp (make-instance 'score))) 
+    (list `(:meta .
+		  ,(score->table tmp)
+	    ))))
+
 (defun hash->list (hash)
   (let (list)
     (flet ((save-slot (key value)
@@ -23,26 +31,28 @@
 (defmethod score->table ((score score))
   (let ((hash (p-table score)))
     (let ((mode (make-keyword (gethash "mode" hash)))
-	  (scores (score score))
-	  (final-score (final-score score))
 	  (rounds (gethash "rounds" hash))
 	  (table-scores (gethash "scores" hash))
 	  (sport (gethash "sport" hash)))
-      (values  mode scores
-	       final-score)
-      (list `(:final-score . ,final-score)
-	    `(:scores . ,scores)
-	    `(:table  . ,(make-score-table :sport sport
-				       :mode mode
-				       :rounds rounds
-				       :scores (hash->list table-scores)))))))
+      ;; (values  mode scores
+      ;; 	       final-score)
+
+      (list `(:score-table . nil)
+	    `(:mode   . ,mode)
+	    `(:sport  . ,sport)
+	    `(:rounds . ,rounds)
+	    `(:table . ,(hash->list table-scores))))))
 
 (defmethod score->table ((person person))
-  (let ((score  (call-next-method person))
+  (let (
 	(name (name person))
 	(form (forms person))
+	(final-score (final-score person))
+	(score (score person))
 	)
     (list `(:name . ,name)
 	  `(:forms . ,form)
-	  `(:score . ,score))))
+	  `(:score . ,score)
+	  `(:final-score . ,final-score)
+	  `(:total . ,(apply #'+ final-score)))))
 

@@ -1,5 +1,16 @@
 (in-package :scorer)
 
+(define-symbol-macro current-date
+    (multiple-value-bind (sec min hr day mnt year) (get-decoded-time)
+      (list `(:sec . ,sec)
+	    `(:min . ,min)
+	    `(:hour . ,hr)
+	    `(:day . ,day)
+	    `(:month . ,mnt)
+	    `(:year . ,year))))
+
+(defparameter *program-start* current-date)
+
 (defclass s-time ()
   ((ms   :initarg :ms   :initform 0 :accessor ms  )
    (sec :initarg :sec :initform 0 :accessor sec)
@@ -12,6 +23,13 @@
    (month :initarg :month :initform 0 :accessor month)
    (year :initarg :year :initform 0 :accessor year)
    ))
+
+(defmethod cl:print-object ((date date) stream)
+  (print-unreadable-object (date stream :type t)
+    (with-slots (day month year ) date
+      (format stream "day: ~s month: ~s year: ~s"
+	      day month year))))
+
 
 
 (defmethod time->int ((time s-time))

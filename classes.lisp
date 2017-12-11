@@ -6,29 +6,29 @@
 
 ;;; TODO: find a way to make these constants without
 ;;; sbcl complaining when i recompile 
-;; (defparameter +hbar+    (t->string (code-char #x2500)))
-;; (defparameter +vbar+    (t->string (code-char #x2502)))
-;; (defparameter +ul-c+    (t->string (code-char #x250c)))
-;; (defparameter +ur-c+    (t->string (code-char #x2510)))
-;; (defparameter +dr-c+    (t->string (code-char #x2514)))
-;; (defparameter +dl-c+    (t->string (code-char #x2518)))
-;; (defparameter +left-t+  (t->string (code-char #x251c)))
-;; (defparameter +right-t+ (t->string (code-char #x2524)))
-;; (defparameter +up-t+    (t->string (code-char #x252c)))
-;; (defparameter +down-t+  (t->string (code-char #x2534)))
-;; (defparameter +mid-t+   (t->string (code-char #x253c)))
-
-(defparameter +hbar+    "-")
+(defparameter +hbar+    (t->string (code-char #x2500)))
 (defparameter +vbar+    (t->string (code-char #x2502)))
-(defparameter +ul-c+    "+")
-(defparameter +ur-c+    "+")
-(defparameter +dr-c+    "+")
-(defparameter +dl-c+    "+")
-(defparameter +left-t+  "+")
-(defparameter +right-t+ "+")
-(defparameter +up-t+    "+")
-(defparameter +down-t+  "+")
+(defparameter +ul-c+    (t->string (code-char #x250c)))
+(defparameter +ur-c+    (t->string (code-char #x2510)))
+(defparameter +dr-c+    (t->string (code-char #x2514)))
+(defparameter +dl-c+    (t->string (code-char #x2518)))
+(defparameter +left-t+  (t->string (code-char #x251c)))
+(defparameter +right-t+ (t->string (code-char #x2524)))
+(defparameter +up-t+    (t->string (code-char #x252c)))
+(defparameter +down-t+  (t->string (code-char #x2534)))
 (defparameter +mid-t+   (t->string (code-char #x253c)))
+
+;;(defparameter +hbar+    "-")
+;;(defparameter +vbar+    (t->string (code-char #x2502)))
+;;(defparameter +ul-c+    "+")
+;;(defparameter +ur-c+    "+")
+;;(defparameter +dr-c+    "+")
+;;(defparameter +dl-c+    "+")
+;;(defparameter +left-t+  "+")
+;;(defparameter +right-t+ "+")
+;;(defparameter +up-t+    "+")
+;;(defparameter +down-t+  "+")
+;;(defparameter +mid-t+   (t->string (code-char #x253c)))
 
 (defun get-hash (object table)
   "because i cant spell"
@@ -217,7 +217,7 @@
     (concatenate 'string  (spaces (- num (length str))) str)))
 
 (defun concat-str-lst (lst)
-  (coerce  (apply #'append  (mapcar #'(lambda (x) (coerce x 'list)) lst)) 'string))
+  (coerce (apply #'append  (mapcar #'(lambda (x) (coerce x 'list)) lst)) 'string))
   
 
 (defgeneric to-mid-bar (str)
@@ -239,7 +239,11 @@ str-table but with the string case applied to each sublist"))
 	 (mapcar #'concat-str-lst  (loop for x in (str-table score)
 				      collect (mapcar #'to-mid-bar x)))))
     (let ((id-string (car  (sort lst (lambda (x y) (> (length x) (length y)))))))
-      (concatenate 'string +left-t+  (subseq id-string 0 (1- (length id-string))) +right-t+))))
+      (let ((ret-list (make-list (length lst) :initial-element 
+				 (concatenate 'string +left-t+
+					      (subseq id-string 0 (1- (length id-string)))
+					      +right-t+))))
+	(values  ret-list lst (length lst))))))
 
 (defmethod add-vbar ((score score)) 
   (let ((lst (str-table score))
@@ -278,7 +282,7 @@ str-table but with the string case applied to each sublist"))
    (place :accessor place :initform "")
    (date :accessor date :initform (make-instance 'date))))
 
-(defvar *current-round* (make-instance 'scored-round))
+
 
 (defmethod initialize-instance :after ((person person) &key)
   (push person (people *current-round*))
@@ -288,4 +292,5 @@ str-table but with the string case applied to each sublist"))
     (setf (forms person) (split-by-spaces forms))
     (setf (name person) name)))
 
-
+(defmethod score-round :after ((person person))
+  (push (score->table person) *current-round*))
