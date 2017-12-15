@@ -20,13 +20,6 @@
       (maphash #'save-slot hash)
       list)))
 
-(defun make-score-table (&key (mode "") (sport "") (rounds -1) scores)
-  "Returns a plist "
-  (list `(:score-table . nil)
-	`(:mode   . ,mode)
-	`(:sport  . ,sport)
-	`(:rounds . ,rounds)
-	`(:scores . ,scores)))
 
 (defmethod score->table ((score score))
   (let ((hash (p-table score)))
@@ -48,11 +41,25 @@
 	(name (name person))
 	(form (forms person))
 	(final-score (final-score person))
-	(score (score person))
-	)
+	(score (score person)))
     (list `(:name . ,name)
 	  `(:forms . ,form)
 	  `(:score . ,score)
 	  `(:final-score . ,final-score)
 	  `(:total . ,(apply #'+ final-score)))))
 
+(defun get-name-from-db (itm)
+  (loop
+     for x in *current-round*
+     do (if (equalp  (cdr (assoc :name x)) itm)
+	    (return x))))
+
+(defun db-entry->person (name)
+  (let ((alist (get-name-from-db name)))
+    alist))
+
+(defun alistp (list)
+  (and (listp list)
+       (every #'consp list)))
+
+(defun to-json (list) 'hji)

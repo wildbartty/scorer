@@ -7,11 +7,13 @@
   :serial t
   :depends-on (:alexandria
 	       :split-sequence
+	       :cl-ppcre
 	       :cl-yaml)
   :components ((:file "package")
+	       (:file "class-definitions")
 	       (:file "time")
 	       (:file "score")
 	       (:file "person")
 	       (:file "db")
-               (:file "scorer")))
+               ))
 

@@ -6,29 +6,18 @@
 
 ;;; TODO: find a way to make these constants without
 ;;; sbcl complaining when i recompile 
-;; (defparameter +hbar+    (t->string (code-char #x2500)))
-;; (defparameter +vbar+    (t->string (code-char #x2502)))
-;; (defparameter +ul-c+    (t->string (code-char #x250c)))
-;; (defparameter +ur-c+    (t->string (code-char #x2510)))
-;; (defparameter +dr-c+    (t->string (code-char #x2514)))
-;; (defparameter +dl-c+    (t->string (code-char #x2518)))
-;; (defparameter +left-t+  (t->string (code-char #x251c)))
-;; (defparameter +right-t+ (t->string (code-char #x2524)))
-;; (defparameter +up-t+    (t->string (code-char #x252c)))
-;; (defparameter +down-t+  (t->string (code-char #x2534)))
-;; (defparameter +mid-t+   (t->string (code-char #x253c)))
+(defparameter +hbar+    (t->string (code-char #x2500)))
+(defparameter +vbar+    (t->string (code-char #x2502)))
+(defparameter +ul-c+    (t->string (code-char #x250c)))
+(defparameter +ur-c+    (t->string (code-char #x2510)))
+(defparameter +dr-c+    (t->string (code-char #x2514)))
+(defparameter +dl-c+    (t->string (code-char #x2518)))
+(defparameter +left-t+  (t->string (code-char #x251c)))
+(defparameter +right-t+ (t->string (code-char #x2524)))
+(defparameter +up-t+    (t->string (code-char #x252c)))
+(defparameter +down-t+  (t->string (code-char #x2534)))
+(defparameter +mid-t+   (t->string (code-char #x253c)))
 
-(defparameter +hbar+    "-")
-(defparameter +vbar+    "|")
-(defparameter +ul-c+    "+")
-(defparameter +ur-c+    "+")
-(defparameter +dr-c+    "+")
-(defparameter +dl-c+    "+")
-(defparameter +left-t+  "+")
-(defparameter +right-t+ "+")
-(defparameter +up-t+    "+")
-(defparameter +down-t+  "+")
-(defparameter +mid-t+   "+")
 
 (defun get-hash (object table)
   "because i cant spell"
@@ -55,8 +44,8 @@
   "makes a string that is num long with all elements equal to +hbar+"
   (make-string num :initial-element (aref +hbar+ 0)))
 
-(defvar *current-config* (read-config "test.yaml"))
-(defvar *score-table* (gethash "scores" *current-config*))
+(defparameter *current-config* (read-config "test.yaml"))
+(defparameter *score-table* (gethash "scores" *current-config*))
 
 (defclass score ()
   ;;the class that stores the score
@@ -64,7 +53,7 @@
    (score-table :accessor score-table)
    (score :accessor score)
    (rounds :reader rounds)
-   (final-score :accessor final-score)
+   (final-score :accessor final-score :initform nil)
    (running-score-val :accessor running-score-val)
    (ret-table :accessor ret-table)
    (ret-table-str :accessor str-table)))

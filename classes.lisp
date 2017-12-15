@@ -42,10 +42,9 @@
 
 (defun read-config (file)
   "reads a config file"
-  (let ((string (read-file-into-string file)))
-    (cl-yaml:parse string)))
-;; explicit package used because parse is too generic
-;; meaning
+  (with-input-from-file (stream file)
+			(decode-json)))
+
 
 (defun str-arround (str thing1 thing2)
   "returns a string wraped with "
@@ -55,20 +54,20 @@
   "makes a string that is num long with all elements equal to +hbar+"
   (make-string num :initial-element (aref +hbar+ 0)))
 
-(defvar *current-config* (read-config "test.yaml"))
+(defvar *current-config* (read-config "test.json"))
 (defvar *score-table* (gethash "scores" *current-config*))
 
 (defclass score ()
   ;;the class that stores the score
-  ((table :accessor p-table)
-   (score-table :accessor score-table)
-   (score :accessor score)
-   (rounds :reader rounds)
-   (parsed-score :accessor parsed-score)
-   (final-score :accessor final-score)
-   (running-score-val :accessor running-score-val)
-   (ret-table :accessor ret-table)
-   (ret-table-str :accessor str-table)))
+  ((table             :accessor p-table)
+   (score-table       :initform nil :accessor score-table)
+   (score             :initform nil :accessor score)
+   (rounds            :initform nil :reader   rounds)
+   (parsed-score      :initform nil :accessor parsed-score)
+   (final-score       :initform nil :accessor final-score)
+   (running-score-val :initform nil :accessor running-score-val)
+   (ret-table         :initform nil :accessor ret-table)
+   (ret-table-str     :initform nil :accessor str-table)))
 
 (defmethod initialize-instance :after ((score score) &key)
   "sets the class slots base on current config"
@@ -270,27 +269,3 @@ str-table but with the string case applied to each sublist"))
 
 (defun split-by-spaces (str)
   (split-sequence #\space str))
-
-(defclass person (score)
-  ((name :accessor name)
-   (score :reader score :initform (make-instance 'score))
-   (forms :accessor forms :initform nil)
-   (ammount :initform 0 :accessor p-ammount :allocation :class)))
-
-(defclass scored-round ()
-  ((people :accessor people :initform nil)
-   (place :accessor place :initform "")
-   (date :accessor date :initform (make-instance 'date))))
-
-
-
-(defmethod initialize-instance :after ((person person) &key)
-  (push person (people *current-round*))
-  (let ((name (ask-input "whats the name"))
-	(forms (ask-input "what are the forms")))
-    (incf (p-ammount person))
-    (setf (forms person) (split-by-spaces forms))
-    (setf (name person) name)))
-
-(defmethod score-round :after ((person person))
-  (push (score->table person) *current-round*))

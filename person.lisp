@@ -16,5 +16,9 @@
 	(forms (ask-input "what are the forms")))
     (incf (p-ammount person))
     (setf (forms person) (split-by-spaces forms))
-    (setf (name person) name)))
+    (setf (name person) name))
+  (push (score->table person) *current-round*))
 
+(defmethod score-round :after ((person person))
+  ;(push (score->table person) *current-round*)
+  )
