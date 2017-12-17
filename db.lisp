@@ -56,7 +56,18 @@
 
 (defun db-entry->person (name)
   (let ((alist (get-name-from-db name)))
-    alist))
+    (let ((name (cdr (assoc :name alist)))
+	  (forms (cdr (assoc :forms alist)))
+	  (score (cdr (assoc :score alist)))
+	  (final-score (cdr (assoc :final-score alist)))
+	  (total (cdr (assoc :total alist))))
+      (make-instance 'person
+		     :name name
+		     :forms forms
+		     :score score
+		     :final-score final-score
+		     ;:total total
+		     :from-db t))))
 
 (defun alistp (list)
   (and (listp list)

@@ -8,6 +8,7 @@
   :depends-on (:alexandria
 	       :split-sequence
 	       :cl-ppcre
+	       :cl-json
 	       :cl-yaml)
   :components ((:file "package")
 	       (:file "class-definitions")

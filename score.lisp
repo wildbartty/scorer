@@ -53,7 +53,7 @@
    (score-table :accessor score-table)
    (score :accessor score)
    (rounds :reader rounds)
-   (final-score :accessor final-score :initform nil)
+   (final-score :accessor final-score :initform nil :initarg :final-score)
    (running-score-val :accessor running-score-val)
    (ret-table :accessor ret-table)
    (ret-table-str :accessor str-table)))
