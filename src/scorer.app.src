@@ -1,8 +1,8 @@
-{application, scorer_erl,
+{application, scorer,
  [{description, "An OTP application"},
   {vsn, "0.1.0"},
   {registered, []},
-  {mod, { scorer_erl_app, []}},
+  {mod, { scorer_app, []}},
   {applications,
    [kernel,
     stdlib

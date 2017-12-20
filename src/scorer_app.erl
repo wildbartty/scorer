@@ -5,22 +5,10 @@
 
 -module(scorer_app).
 
--behaviour(application).
-
 %% Application callbacks
--export([start/2, stop/1]).
+-compile(export_all).
 
-%%====================================================================
-%% API
-%%====================================================================
-
-start(_StartType, _StartArgs) ->
-    scorer_sup:start_link().
-
-%%--------------------------------------------------------------------
-stop(_State) ->
-    ok.
-
-%%====================================================================
-%% Internal functions
-%%====================================================================
+read_config(File)->
+    {ok,Ret} = file:read_file(File),
+    Ret.
+    
