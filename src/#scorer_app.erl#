@@ -32,3 +32,4 @@ read_config(File)->
     {ok,Str} = file:read_file(File),
     Ret = jsx:decode(Str),
     json_bstr_to_str(Ret).
+
