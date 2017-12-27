@@ -8,6 +8,8 @@
 
 -export([initDB/0]).
 
+-export([read_config/1]).
+
 -record(scorer_table, {date = scorer_date:today(), 
 		       scores = [],
 		       rounds = 0,
@@ -61,10 +63,13 @@ read_config(File)->
     json_bstr_to_str(Ret).
 
 valid_config(Config)->
+    %% check that all the data to score a round is in the file
     Score = lookup("scores",Config),
+    Rounds = lookup("rounds",Config),
     if
-	Score -> ok;
-	true -> bad
+	(Score == none) -> {bad, score};
+	Rounds == none -> {bad, rounds};
+	true -> {ok, Config}
     end.
 
 initDB()->
@@ -83,15 +88,16 @@ make_table()->
 
 make_table(File)->
     Table = read_config(File),
-    Check = valid_config(Table),
+    {ok,Check} = valid_config(Table),
     if
-	Check =:= ok ->
+	not (is_atom(Check)) ->
 	    {_,Scorer_table} = lookup("scores", Table),
 	    {_,Rounds} = lookup("rounds",Table),
 	    {_,Mode} = lookup("mode", Table),
 	    {_,Sport} = lookup("sport",Table),
 	    #scorer_table{sport=Sport,rounds=Rounds,
-			  mode = Mode, scores= Scorer_table}
+			  mode = Mode, scores= Scorer_table};
+	true -> Check
     end.
 
 store_table(X) when is_record(X, scorer_table) ->
