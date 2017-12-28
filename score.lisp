@@ -32,7 +32,7 @@
 (defun read-config (file)
   "reads a config file"
   (let ((string (read-file-into-string file)))
-    (cl-yaml:parse string)))
+    (cl-json:decode-json-from-string string)))
 ;; explicit package used because parse is too generic
 ;; meaning
 
@@ -44,158 +44,179 @@
   "makes a string that is num long with all elements equal to +hbar+"
   (make-string num :initial-element (aref +hbar+ 0)))
 
-(defparameter *current-config* (read-config "test.yaml"))
-(defparameter *score-table* (gethash "scores" *current-config*))
+(defparameter *current-config* (read-config "test.json"))
 
-(defclass score ()
-  ;;the class that stores the score
-  ((table :accessor p-table)
-   (score-table :accessor score-table)
-   (score :accessor score)
-   (rounds :reader rounds)
-   (final-score :accessor final-score :initform nil :initarg :final-score)
-   (running-score-val :accessor running-score-val)
-   (ret-table :accessor ret-table)
-   (ret-table-str :accessor str-table)))
+(defun make-score (&key
+		     (table *current-config*)
+		     (score nil)
+		     (total 0)
+		     (running-score nil)
+		     (ret-table nil)
+		     (ret-table-str "")
+		     )
+  (list `(:table . ,(cdr (assoc :scores table)))
+	`(:score . ,score)
+	`(:running-score . ,running-score)
+	`(:total . ,total)
+	`(:ret-table ,ret-table)
+	`(:ret-table-str ,ret-table-str)
+	`(:rounds . ,(cdr (assoc :rounds table)))
+	`(:sport . ,(cdr (assoc :sport table)))
+	`(:mode . ,(cdr (assoc :mode table)))
+	))
 
-(defmethod initialize-instance :after ((score score) &key)
-  "sets the class slots base on current config"
-  (let ((table *current-config*)
-	(score-table *score-table*))
-    (setf (p-table score) table
-	  (slot-value score 'rounds) (gethash "rounds" table)
-	  (score-table score) score-table)))
-(defgeneric get-score-in (var))
+;; (defclass score ()
+;;   ;;the class that stores the score
+;;   ((table :accessor p-table)
+;;    (score-table :accessor score-table)
+;;    (score :accessor score)
+;;    (rounds :reader rounds)
+;;    (final-score :accessor final-score :initform nil :initarg :final-score)
+;;    (running-score-val :accessor running-score-val)
+;;    (ret-table :accessor ret-table)
+;;    (ret-table-str :accessor str-table)))
 
-(defmethod get-score-in ((score score))
-  "simple helper function"
-  (push (ask-input "score?") (score score)))
+;; (defmethod initialize-instance :after ((score score) &key)
+;;   "sets the class slots base on current config"
+;;   (let ((table *current-config*)
+;; 	(score-table *score-table*))
+;;     (setf (p-table score) table
+;; 	  (slot-value score 'rounds) (gethash "rounds" table)
+;; 	  (score-table score) score-table)))
+;; (defgeneric get-score-in (var))
 
-(defmethod parse-score ((score  score) val)
+;; (defmethod get-score-in ((score score))
+;;   "simple helper function"
+;;   (push (ask-input "score?") (score score)))
+
+(defun parse-score (score val)
   "returns the value of val in score"
-  (gethash val (score-table score)))
+  (let ((table (cdr (assoc :table score))))
+    (assoc val table)))
 
-(defmethod get-score-vals ((score score))
-  "returns the parsed values of score"
-  (mapcar #'(lambda (x) (parse-score score x)) (score score)))
+(defun )
 
-(defmethod test-score ((score score))
-  "tests if there are undefined elements in score"
-  (let* ((place (get-score-vals score))
-	 (tlist (member nil place)))
-    (if tlist
-	(- (length place) (length tlist))
-	-1)))
+;; (defmethod get-score-vals ((score score))
+;;   "returns the parsed values of score"
+;;   (mapcar #'(lambda (x) (parse-score score x)) (score score)))
 
-(defgeneric set-score-at (score place value))
+;; (defmethod test-score ((score score))
+;;   "tests if there are undefined elements in score"
+;;   (let* ((place (get-score-vals score))
+;; 	 (tlist (member nil place)))
+;;     (if tlist
+;; 	(- (length place) (length tlist))
+;; 	-1)))
 
-(defmethod set-score-at ((score score) (place fixnum) value)
-  (setf (nth place (score score)) value))
+;; (defgeneric set-score-at (score place value))
 
-;;ignore the cyclic dependency here
-(defmethod running-score ((score score))
-  "sets (running-score score) to be the accumulation of the past scores"
-  (loop
-     for x from 0 upto (length (final-score score))
-     for y in (final-score score)
-     when (not y) do (set-score-at score x
-				   (ask-input (format
-					       nil
-					       "bad number at ~a~%whats the proper score?"
-					       (1+ x))))
-     finally (setf (final-score score) (get-score-vals score)))
-  (setf (running-score-val score)
-	(let* ((list (final-score score))
-	       (len (length list)))
-	  (loop for x from 1 upto len
-	     collect (reduce #'+ (subseq list 0 x))))))
+;; (defmethod set-score-at ((score score) (place fixnum) value)
+;;   (setf (nth place (score score)) value))
 
-(defmethod score-round ((score score))
-  (setf (score score) nil)
-  (setf (score score)
-	(loop
-	   for x from 1 upto (rounds score)
-	   collect (ask-input "score?")
-	     )))
+;; ;;ignore the cyclic dependency here
+;; (defmethod running-score ((score score))
+;;   "sets (running-score score) to be the accumulation of the past scores"
+;;   (loop
+;;      for x from 0 upto (length (final-score score))
+;;      for y in (final-score score)
+;;      when (not y) do (set-score-at score x
+;; 				   (ask-input (format
+;; 					       nil
+;; 					       "bad number at ~a~%whats the proper score?"
+;; 					       (1+ x))))
+;;      finally (setf (final-score score) (get-score-vals score)))
+;;   (setf (running-score-val score)
+;; 	(let* ((list (final-score score))
+;; 	       (len (length list)))
+;; 	  (loop for x from 1 upto len
+;; 	     collect (reduce #'+ (subseq list 0 x))))))
 
-(defmethod score-round :after ((score score))
-  (setf (final-score score) (get-score-vals score)
-	(running-score-val score) (running-score score))
-  (collect-to-table score))
+;; (defmethod score-round ((score score))
+;;   (setf (score score) nil)
+;;   (setf (score score)
+;; 	(loop
+;; 	   for x from 1 upto (rounds score)
+;; 	   collect (ask-input "score?")
+;; 	     )))
 
-(defun append-to-all (lst char) 
-  (loop for x in lst 
-     collect (loop for y in x
-		collect (concatenate 'string y char))))
+;; (defmethod score-round :after ((score score))
+;;   (setf (final-score score) (get-score-vals score)
+;; 	(running-score-val score) (running-score score))
+;;   (collect-to-table score))
 
-(defmethod collect-to-table ((score score))
-  (setf (ret-table score) 
-	(let ((score (score score))
-	      (final-score (final-score score))
-	      (running-score (running-score-val score)))
-	  (loop
-	     for x in score
-	     for y in final-score
-	     for z in running-score
-	     collect (list x y z)))))
+;; (defun append-to-all (lst char) 
+;;   (loop for x in lst 
+;;      collect (loop for y in x
+;; 		collect (concatenate 'string y char))))
 
-(defmethod collect-to-table :after ((score score))
-  "Converts all of the contents in ret-table to a string"
-  (setf (str-table score)
-	;;(mapcar #'(lambda (x) (mapcar #'(lambda (y) (t->string y)) x)) *)
-	;;why did this not throw an error?
-	(mapcar #'(lambda (x) (mapcar #'(lambda (y) (t->string y)) x)) (ret-table score))))
+;; (defmethod collect-to-table ((score score))
+;;   (setf (ret-table score) 
+;; 	(let ((score (score score))
+;; 	      (final-score (final-score score))
+;; 	      (running-score (running-score-val score)))
+;; 	  (loop
+;; 	     for x in score
+;; 	     for y in final-score
+;; 	     for z in running-score
+;; 	     collect (list x y z)))))
 
-(defmethod add-vbar ((score score)) 
-  (let ((lst (str-table score)))
-    (loop for x in lst 
-       collect (loop for y in x
-		  collect (concatenate 'string y +vbar+)))))
+;; (defmethod collect-to-table :after ((score score))
+;;   "Converts all of the contents in ret-table to a string"
+;;   (setf (str-table score)
+;; 	;;(mapcar #'(lambda (x) (mapcar #'(lambda (y) (t->string y)) x)) *)
+;; 	;;why did this not throw an error?
+;; 	(mapcar #'(lambda (x) (mapcar #'(lambda (y) (t->string y)) x)) (ret-table score))))
 
-(defmethod col1-length ((score score))
-  (length (t->string (rounds score))))
+;; (defmethod add-vbar ((score score)) 
+;;   (let ((lst (str-table score)))
+;;     (loop for x in lst 
+;;        collect (loop for y in x
+;; 		  collect (concatenate 'string y +vbar+)))))
 
-(defmethod col2-length ((score score))
-  (loop for x being each hash-key in (score-table score)
-       maximize (length (t->string x))))
+;; (defmethod col1-length ((score score))
+;;   (length (t->string (rounds score))))
 
-(defmethod col3-length ((score  score)) 
-  (loop for x being each hash-value in (score-table score)
-       maximize (length (t->string x))))
+;; (defmethod col2-length ((score score))
+;;   (loop for x being each hash-key in (score-table score)
+;;        maximize (length (t->string x))))
 
-(defmethod col4-length ((score score))
-  (loop for x in (mapcar #'t->string (running-score-val score))
-       maximize (length x)))
+;; (defmethod col3-length ((score  score)) 
+;;   (loop for x being each hash-value in (score-table score)
+;;        maximize (length (t->string x))))
 
-(defmethod rightpad ((num fixnum) (str string))
-  (labels ((spaces (num)
-	     (when (> num 0)
-	       (make-string num :initial-element #\space))))
-    (concatenate 'string  (spaces (- num (length str))) str)))
+;; (defmethod col4-length ((score score))
+;;   (loop for x in (mapcar #'t->string (running-score-val score))
+;;        maximize (length x)))
 
-(defgeneric to-mid-bar (str)
-  (:documentation "on a string it returns
-a string with length n+1 on a score object it returns the
-str-table but with the string case applied to each sublist"))
+;; (defmethod rightpad ((num fixnum) (str string))
+;;   (labels ((spaces (num)
+;; 	     (when (> num 0)
+;; 	       (make-string num :initial-element #\space))))
+;;     (concatenate 'string  (spaces (- num (length str))) str)))
 
-(defmethod to-mid-bar ((str string))
-  (concatenate 'string (make-bar (length str)) +mid-t+))
+;; (defgeneric to-mid-bar (str)
+;;   (:documentation "on a string it returns
+;; a string with length n+1 on a score object it returns the
+;; str-table but with the string case applied to each sublist"))
 
-(defmethod to-mid-bar (string)
-  (concatenate 'string +left-t+ 
-	       (loop for x in string
-		  collect (mapcar #'to-mid-bar x))
-	       +right-t+))
-(defmethod to-mid-bar ((score score))
-  (concatenate 'string +left-t+ 
-	       (loop for x in (str-table score)
-		  collect (mapcar #'to-mid-bar x))
-	       +right-t+))
+;; (defmethod to-mid-bar ((str string))
+;;   (concatenate 'string (make-bar (length str)) +mid-t+))
 
-(defmethod reduce-strings ((score score))
-  (let* ((lst (add-vbar score))
-	 (ret0 
-	  (loop for x in lst
-	     collect (reduce #'(lambda (a b) (concatenate 'string a b)) x))))
-    (loop for x in ret0
-       collect (concatenate 'string +vbar+ x))))
+;; (defmethod to-mid-bar (string)
+;;   (concatenate 'string +left-t+ 
+;; 	       (loop for x in string
+;; 		  collect (mapcar #'to-mid-bar x))
+;; 	       +right-t+))
+;; (defmethod to-mid-bar ((score score))
+;;   (concatenate 'string +left-t+ 
+;; 	       (loop for x in (str-table score)
+;; 		  collect (mapcar #'to-mid-bar x))
+;; 	       +right-t+))
+
+;; (defmethod reduce-strings ((score score))
+;;   (let* ((lst (add-vbar score))
+;; 	 (ret0 
+;; 	  (loop for x in lst
+;; 	     collect (reduce #'(lambda (a b) (concatenate 'string a b)) x))))
+;;     (loop for x in ret0
+;;        collect (concatenate 'string +vbar+ x))))
