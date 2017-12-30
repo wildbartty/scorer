@@ -10,11 +10,13 @@
 	       :cl-ppcre
 	       :cl-json
 	       :cl-yaml)
-  :components ((:file "package")
-	       (:file "class-definitions")
-	       (:file "time")
-	       (:file "score")
-	       (:file "person")
-	       (:file "db")
+  :components
+      (
+       (:file "package")
+       ;(:file "class-definitions")
+       ;(:file "time")
+       ;(:file "score")
+       ;(:file "person")
+       ;(:file "db")
                ))
 
