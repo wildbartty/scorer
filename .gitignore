@@ -15,3 +15,5 @@ _build
 .idea
 *.iml
 rebar3.crashdump
+*.fasl
+*~
