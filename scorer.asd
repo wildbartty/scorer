@@ -11,7 +11,7 @@
 	       :cl-json
 	       :cl-yaml)
   :components ((:file "package")
-	       (:file "class-definitions")
+	       ;(:file "class-definitions")
 	       (:file "time")
 	       (:file "person")
 	       (:file "db")

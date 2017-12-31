@@ -50,9 +50,12 @@
 (defparameter *current-config* (read-config "test.json"))
 
 (defun make-person (&key (name "") (sport "") (score nil) (date (today)) (forms nil))
-  (list `(:name . ,name)
-	`(:date . ,date)
-	`(:score . ,score)
-	`(:sport . ,sport)
-	`(:forms . ,forms)))
+  (let ((ret (list :name   name
+		   :date   date
+		   :score  score
+		   :sport  sport
+		   :forms  forms)))
+    (unless (person-in-cround ret) (push ret *current-round*))
+    (sort *current-round* #'string-lessp :key (lambda (x) (getf x :name)))
+    ret))
 
