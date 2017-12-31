@@ -13,7 +13,6 @@
   :components ((:file "package")
 	       (:file "class-definitions")
 	       (:file "time")
-	       (:file "score")
 	       (:file "person")
 	       (:file "db")
                ))
