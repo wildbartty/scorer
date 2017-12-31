@@ -1,5 +1,7 @@
 ;;;; package.lisp
 
 (defpackage #:scorer
-  (:use #:cl #:alexandria ))
+  (:use #:cl #:alexandria
+	#:cl-json
+	#:split-sequence))
 

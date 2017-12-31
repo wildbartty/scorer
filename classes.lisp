@@ -4,9 +4,6 @@
   "converts any printable t to a string"
   (format nil "~a" x))
 
-(defun split-by-spaces (str)
-  (split-sequence #\space str))
-
 ;;; TODO: find a way to make these constants without
 ;;; sbcl complaining when i recompile 
 (defparameter +hbar+    (t->string (code-char #x2500)))
@@ -21,6 +18,17 @@
 (defparameter +down-t+  (t->string (code-char #x2534)))
 (defparameter +mid-t+   (t->string (code-char #x253c)))
 
+;;(defparameter +hbar+    "-")
+;;(defparameter +vbar+    (t->string (code-char #x2502)))
+;;(defparameter +ul-c+    "+")
+;;(defparameter +ur-c+    "+")
+;;(defparameter +dr-c+    "+")
+;;(defparameter +dl-c+    "+")
+;;(defparameter +left-t+  "+")
+;;(defparameter +right-t+ "+")
+;;(defparameter +up-t+    "+")
+;;(defparameter +down-t+  "+")
+;;(defparameter +mid-t+   (t->string (code-char #x253c)))
 
 (defun get-hash (object table)
   "because i cant spell"
@@ -34,10 +42,9 @@
 
 (defun read-config (file)
   "reads a config file"
-  (let ((string (read-file-into-string file)))
-    (cl-json:decode-json-from-string string)))
-;; explicit package used because parse is too generic
-;; meaning
+  (with-input-from-file (stream file)
+			(decode-json)))
+
 
 (defun str-arround (str thing1 thing2)
   "returns a string wraped with "
@@ -47,15 +54,8 @@
   "makes a string that is num long with all elements equal to +hbar+"
   (make-string num :initial-element (aref +hbar+ 0)))
 
-(defparameter *current-config* (read-config "test.json"))
+(defvar *current-config* (read-config "test.json"))
+(defvar *score-table* (gethash "scores" *current-config*))
 
-(defun make-person (&key (name "") (sport "") (score nil) (date (today)) (forms nil))
-  (let ((ret (list :name   name
-		   :date   date
-		   :score  score
-		   :sport  sport
-		   :forms  forms)))
-    (unless (person-in-cround ret) (push ret *current-round*))
-    (sort *current-round* #'string-lessp :key (lambda (x) (getf x :name)))
-    ret))
-
+(defun split-by-spaces (str)
+  (split-sequence #\space str))
