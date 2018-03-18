@@ -1,7 +1,0 @@
--module(scorer_person).
-
--record(scorer_person, {date = 0,
-			score = [],
-			name = [], 
-			forms = [],
-			time = 0}).
